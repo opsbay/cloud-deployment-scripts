@@ -1,0 +1,57 @@
+---
+
+- name: Install tools for compiling ruby package on CentOS 6
+  yum: name={{ item }} state=latest
+  with_items:
+    - gcc-c++
+    - patch
+    - readline
+    - readline-devel
+    - zlib
+    - zlib-devel
+    - libyaml-devel
+    - libffi-devel
+    - libselinux-python
+    - openssl-devel
+    - make
+    - bzip2
+    - autoconf
+    - automake
+    - libtool
+    - bison
+    - sqlite-devel
+    - glibc-common
+    - wget
+
+- name: Download RVM GPG key on CentOS 6
+  get_url:
+    url: https://rvm.io/mpapis.asc
+    dest: /etc/pki/rpm-gpg/RPM-GPG-KEY-rvm
+
+- name: Import RVM GPG key on CentOS 6
+  command: gpg --import /etc/pki/rpm-gpg/RPM-GPG-KEY-rvm
+
+- name: Download RVM installation script on CentOS 6
+  get_url:
+    url: https://get.rvm.io
+    dest: /usr/local/bin/get-rvm.sh
+    mode: 0750
+
+- name: Run RVM installation script on CentOS 6
+  command: /usr/local/bin/get-rvm.sh stable
+
+- name: Use RVM to install and set up a default Ruby on CentOS 6
+  shell: |
+    set -eo pipefail
+    RUBY_VERSION=2.3.3
+    RVM=/usr/local/rvm/bin/rvm
+    if ! grep rvm "$HOME/.bash_profile" > /dev/null; then
+        echo '[[ -s "$HOME/.rvm/scripts/rvm" ]] && source "$HOME/.rvm/scripts/rvm"' >> "$HOME/.bash_profile"
+    fi
+    source /etc/profile.d/rvm.sh
+    $RVM reload
+    $RVM requirements run
+    $RVM list | grep $RUBY_VERSION || /usr/local/rvm/bin/rvm install $RUBY_VERSION
+    $RVM use $RUBY_VERSION --default
+    rm -f /usr/bin/ruby
+    ln -s /usr/local/rvm/gems/ruby-$RUBY_VERSION/wrappers/ruby /usr/bin/ruby

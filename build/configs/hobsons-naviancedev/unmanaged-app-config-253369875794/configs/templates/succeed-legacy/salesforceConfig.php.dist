@@ -1,0 +1,7 @@
+<?php
+/* for k12fsb SF sandbox */
+DEFINE ('SFUSR', '$__SFUSR__');
+DEFINE ('SFTKN', '$__SFTKN__'); // mUL4n3lZ
+
+DEFINE ('SF_Partner_WSDL_XML', BASE_INCLUDES_PATH.'$__SF_Partner_WSDL_XML__');
+DEFINE ('SFUSR_ID', '$__SFUSR_ID__');

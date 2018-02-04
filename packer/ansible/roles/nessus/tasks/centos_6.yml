@@ -1,0 +1,11 @@
+---
+
+# Installation of Nessus agent in Centos 6
+
+  - name: Generate service file for Nessus agent (init.d)
+    tags: [ install, nessusinstall ]
+    template:        
+      src:  nessus_service.sh
+      dest: /etc/init.d/nessusagentlinker
+      owner: root
+      mode: 0755

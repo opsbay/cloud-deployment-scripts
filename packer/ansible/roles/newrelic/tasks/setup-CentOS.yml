@@ -1,0 +1,44 @@
+---
+
+  - name: Add New Relic Apt repository on CentOS
+    tags: [ install, newrelicinstall ]
+    yum:
+      name: https://yum.newrelic.com/pub/newrelic/el5/x86_64/newrelic-repo-5-3.noarch.rpm
+      state: present
+      update_cache: no
+
+  - name: install newrelic-sysmond on CentOS
+    tags: [ install, newrelicinstall ]
+    yum:
+      name: newrelic-sysmond
+      state: present
+
+  - name: Copy common.sh
+    tags: [ install, newrelicinstall ]
+    copy:
+      src: "{{ role_path }}/files/common.sh"
+      dest: /opt/newrelic/common.sh
+      owner: root
+      group: root
+      mode: 0644
+
+  - include: centos_6.yml
+    when: ansible_distribution_major_version < '7'
+
+  - include: centos_7.yml
+    when: ansible_distribution_major_version >= '7'
+
+  - name: Ensure Newrelic Linker will auto-start
+    tags: [ install, newrelicinstall ]
+    service:
+      name: newreliclinker
+      enabled: yes
+
+  - name: Ensure New Relic Agent will auto-start
+    tags: [ install, newrelicinstall ]
+    service:
+      name: newrelic-sysmond
+      enabled: yes
+
+  - include: selinux.yml
+

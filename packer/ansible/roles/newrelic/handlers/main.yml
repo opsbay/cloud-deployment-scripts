@@ -1,0 +1,22 @@
+---
+- name: service newrelic start
+  service: name=newrelic-sysmond state=started
+  when: ( ansible_os_family == 'CentOS' and ansible_lsb.major_release|int == 6 ) or ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+ 
+- name: service newrelic stop
+  service: name=newrelic-sysmond state=stopped
+  when: ( ansible_os_family == 'CentOS' and ansible_lsb.major_release|int == 6 ) or ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+
+- name: systemctl start newrelic
+  systemd:
+    state: started
+    daemon_reload: yes
+    name: newrelic-sysmond
+  when: ansible_os_family == 'CentOS' and ansible_lsb.major_release|int == 7
+
+- name: systemctl stop nginx
+  systemd:
+    state: stopped
+    daemon_reload: yes
+    name: newrelic-sysmond
+  when: ansible_os_family == 'CentOS' and ansible_lsb.major_release|int == 7

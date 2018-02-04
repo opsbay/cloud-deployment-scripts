@@ -1,0 +1,37 @@
+server:
+  port: 8050
+
+management:
+  port: 8052
+
+mongoConfig:
+    serverAddresses:
+     - tf-mongo-qa-00.local.naviance.com:27017
+     - tf-mongo-qa-01.local.naviance.com:27017
+     - tf-mongo-qa-02.local.naviance.com:27017
+    username: edocsuser
+    password: Ed0c5App
+
+# poll every 60 minutes
+institutions:
+  pollrecipient:
+#        cron: 0 0 * * * *
+#    cron: 0/10 * * * * *
+    cron: 0 0 0 * * *
+#    cron: 0 0 12 1 1 *
+
+services:
+  oauth2:
+    client:
+#      accessTokenUri: https://int-api.parchment.com/member-directory-api/oauth2/token
+#      clientId: 6048b29b-5175-4bcd-924e-16bb4092c5d8
+#      clientSecret: rV4EfJfGSps8uuMcd
+# prod test
+      accessTokenUri: https://api.parchment.com/member-directory-api/oauth2/token
+      clientId: 08ac5f17-1055-4828-a279-d9b4a07fb85d
+      clientSecret: tyENpz2Xb
+  parchment:
+#    baseUrl: https://int-api.parchment.com
+    baseUrl: https://api.parchment.com
+    destinationUrl: /member-directory-api/v1/receivers?deliveryMethods=ELECTRONIC&testSchools=false&organizationTypes=CO&size=50000&page=
+

@@ -1,0 +1,39 @@
+---
+database:
+  database: naviance_dev
+  host: naviance.mysql.local
+  password: 
+  port: 3306
+  type: mysql
+  username: root
+framework:
+  showBootstrapTime: true
+  bootstrapTimeout: 10
+logging:
+  console:
+    level: debug
+    handleExceptions: true
+    json: false
+    colorize: true
+  file:
+    level: error
+    filename: mr-family-connection-data.log
+    handleExceptions: true
+    json: true
+    maxsize: 5242880
+    maxFiles: 100
+    colorize: true
+  queries: true
+server:
+  env: dev
+  port: 8080
+  session:
+    secret: toomanysecrets
+    name: mr-family-connection-data
+    proxy: false
+    resave: false
+    saveUninitialized: false
+swagger:
+  basePath: /
+  host: localhost:8080
+  swagger: 2.0

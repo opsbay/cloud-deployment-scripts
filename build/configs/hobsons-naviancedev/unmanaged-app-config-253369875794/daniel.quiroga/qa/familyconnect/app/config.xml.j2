@@ -1,0 +1,392 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config>
+    <all>
+        <default>
+            <db>
+                <adapter>Mysqli</adapter>
+                <read>
+                    <host>{{ cluster_address.value }}</host>
+                    <username>{{  master_username.value }}</username>
+                    <password><![CDATA[{{ master_password.value }}]]></password>
+                    <dbname>{{ default_database_name.value }}</dbname>
+                </read>
+                <write>
+                    <host>{{ cluster_address.value }}</host>
+                    <username>{{  master_username.value }}</username>
+                    <password><![CDATA[{{ master_password.value }}]]></password>
+                    <dbname>{{ default_database_name.value }}</dbname>
+                </write>
+            </db>
+	    <smtp>
+		<host>tf-int-mailcatcher-dev.mango.naviance.com</host>
+	    </smtp>
+        </default>
+        <modules>
+            <auth>
+                <logs>
+                    <delegated>
+                        <writers>
+                            <mail>
+                                <to>matthew.caya@naviance.com</to>
+                                <from>delegated-auth-log@naviance.com</from>
+                                <subject>Delegated Auth Request.</subject>
+                            </mail>
+                        </writers>
+                        <priority>7</priority>
+                    </delegated>
+                </logs>
+                <ldap>
+                    <server1>
+                        <host>ads.naviance.com</host>
+                        <baseDn>OU=US,OU=Hobsons,DC=Hobsons,DC=com</baseDn>
+                        <accountCanonicalForm>3</accountCanonicalForm>
+                        <accountDomainName>hobsons.com</accountDomainName>
+                        <accountDomainNameShort>hobsons.com</accountDomainNameShort>
+                    </server1>
+                    <server2>
+                        <host>ads.naviance.com</host>
+                        <baseDn>OU=US,OU=Hobsons,DC=Hobsons,DC=local</baseDn>
+                        <accountCanonicalForm>3</accountCanonicalForm>
+                        <accountDomainName>hobsons.local</accountDomainName>
+                        <accountDomainNameShort>hobsons.local</accountDomainNameShort>
+                    </server2>
+                </ldap>
+            </auth>
+            <course>
+                <db>
+                    <adapter>Mysqli</adapter>
+                    <read>
+                        <host>{{ cluster_address.value }}</host>
+                        <username>{{  master_username.value }}</username>
+                        <password><![CDATA[{{ master_password.value }}]]></password>
+                        <dbname>{{ default_database_name.value }}</dbname>
+                    </read>
+                    <write>
+                        <host>{{ cluster_address.value }}</host>
+                        <username>{{  master_username.value }}</username>
+                        <password><![CDATA[{{ master_password.value }}]]></password>
+                        <dbname>{{ default_database_name.value }}</dbname>
+                    </write>
+                </db>
+            </course>
+            <student>
+                <db>
+                    <adapter>Mysqli</adapter>
+                    <read>
+                        <host>{{ cluster_address.value }}</host>
+                        <username>{{  master_username.value }}</username>
+                        <password><![CDATA[{{ master_password.value }}]]></password>
+                        <dbname>{{ default_database_name.value }}</dbname>
+                    </read>
+                    <write>
+                        <host>{{ cluster_address.value }}</host>
+                        <username>{{  master_username.value }}</username>
+                        <password><![CDATA[{{ master_password.value }}]]></password>
+                        <dbname>{{ default_database_name.value }}</dbname>
+                    </write>
+                </db>
+            </student>
+            <reportingframework>
+                <db>
+                    <adapter>Mysqli</adapter>
+                    <read>
+                        <host>{{ cluster_address.value }}</host>
+                        <username>{{  master_username.value }}</username>
+                        <password><![CDATA[{{ master_password.value }}]]></password>
+                        <dbname>{{ default_database_name.value }}</dbname>
+                    </read>
+                    <write>
+                        <host>{{ cluster_address.value }}</host>
+                        <username>{{  master_username.value }}</username>
+                        <password><![CDATA[{{ master_password.value }}]]></password>
+                        <dbname>{{ default_database_name.value }}</dbname>
+                    </write>
+                    <data>
+                        <host>{{ cluster_address.value }}</host>
+                        <username>{{  master_username.value }}</username>
+                        <password><![CDATA[{{ master_password.value }}]]></password>
+                        <dbname>{{ default_database_name.value }}</dbname>
+                    </data>
+                </db>
+                <url>http://birt.dev.naviance.com</url>
+                <data>http://dca-qa-02.dev.naviance.com</data>
+                <key>k3yf0rRF!</key>
+            </reportingframework>
+            <successplanner>
+                <db>
+                    <adapter>Mysqli</adapter>
+                    <read>
+                        <host>{{ cluster_address.value }}</host>
+                        <username>{{  master_username.value }}</username>
+                        <password><![CDATA[{{ master_password.value }}]]></password>
+                        <dbname>{{ default_database_name.value }}</dbname>
+                    </read>
+                    <write>
+                        <host>{{ cluster_address.value }}</host>
+                        <username>{{  master_username.value }}</username>
+                        <password><![CDATA[{{ master_password.value }}]]></password>
+                        <dbname>{{ default_database_name.value }}</dbname>
+                    </write>
+                </db>
+                <logger>
+                  <name>curriculum-sp-integration</name>
+                  <path>/var/log/phperror.log</path>
+                </logger>
+            </successplanner>
+            <hobsons_data_mart>
+                <db>
+                    <adapter>Mysqli</adapter>
+                    <read>
+                        <host>{{ cluster_address.value }}</host>
+                        <username>{{  master_username.value }}</username>
+                        <password><![CDATA[{{ master_password.value }}]]></password>
+                        <dbname>{{ default_database_name.value }}</dbname>
+                    </read>
+                    <write>
+                        <host>{{ cluster_address.value }}</host>
+                        <username>{{  master_username.value }}</username>
+                        <password><![CDATA[{{ master_password.value }}]]></password>
+                        <dbname>{{ default_database_name.value }}</dbname>
+                    </write>
+                </db>
+            </hobsons_data_mart>
+            <edocs>
+                <db>
+                    <adapter>Mysqli</adapter>
+                    <read>
+                        <host>{{ cluster_address.value }}</host>
+                        <username>{{  master_username.value }}</username>
+                        <password><![CDATA[{{ master_password.value }}]]></password>
+                        <dbname>{{ default_database_name.value }}</dbname>
+                    </read>
+                    <write>
+                        <host>{{ cluster_address.value }}</host>
+                        <username>{{  master_username.value }}</username>
+                        <password><![CDATA[{{ master_password.value }}]]></password>
+                        <dbname>{{ default_database_name.value }}</dbname>
+                    </write>
+                    <edocsdb>
+                        <host>{{ cluster_address.value }}</host>
+                        <username>{{  master_username.value }}</username>
+                        <password><![CDATA[{{ master_password.value }}]]></password>
+                        <dbname>edocsdb</dbname>
+                    </edocsdb>
+                </db>
+            </edocs>
+            <docufide>
+                <host>securetranscript.docufide.com</host>
+                <wsdl>/services2/DocufidePartnerIntegration?wsdl</wsdl>
+                <partnerId>13BEB632-5643-11DC-A248-8A8555D89593</partnerId>
+            </docufide>
+            <njq>
+                <db>
+                    <adapter>Mysqli</adapter>
+                    <njqdb>
+                        <host>{{ cluster_address.value }}</host>
+                        <username>{{  master_username.value }}</username>
+                        <password><![CDATA[{{ master_password.value }}]]></password>
+                        <dbname>edocsdb</dbname>
+                    </njqdb>
+                </db>
+            </njq>
+            <navstore>
+                <host>
+                    <url>nav-services-qa-01.dev.naviance.com</url>
+                </host>
+            </navstore>
+            <naviance-network>
+                <sso_key>6F4F4F698B506B81AAB19494492F7242F435DFD582F759BC340BD61925ADB049</sso_key>
+                <environment>stage</environment>
+                <cname>http://nn-sandbox.naviance.com</cname>
+            </naviance-network>
+            <mobile>
+                <db>
+                    <adapter>Mysqli</adapter>
+                    <mobdb>
+                        <host>{{ cluster_address.value }}</host>
+                        <username>{{  master_username.value }}</username>
+                        <password><![CDATA[{{ master_password.value }}]]></password>
+                        <dbname>mobiledb</dbname>
+                    </mobdb>
+                </db>
+            </mobile>
+            <prepme-services>
+                <url>https://prepme-services-qa-01.dev.naviance.com/</url>
+                <clientId>987987</clientId>
+                <clientSecret>ABc987123</clientSecret>
+            </prepme-services>
+            <prepme>
+                <student_sso_url>https://prepme-qa-01.dev.naviance.com/classroom_qa.php/naviance/sso</student_sso_url>
+                <staff_sso_url>https://prepme-qa-01.dev.naviance.com/classroom_qa.php/naviance/sso</staff_sso_url>
+            </prepme>
+            <nsc>
+                <host>ftps.nslc.org</host>
+                <username>NavianceTest</username>
+                <password>k12m@f!@</password>
+            </nsc>
+            <strengths-explorer>
+                <clientId>b488b79e-14a0-11e3-94dd-48427277fd8e</clientId>
+            </strengths-explorer>
+            <assessments>
+                <awAccountId>913</awAccountId>
+                <iFrameUri>/tests/integration/aw-assessments/server.php</iFrameUri>
+                <personality-type-2>
+                    <awConfigId>404</awConfigId>
+                    <clientId>ac076837-c4a5-11e3-a1a8-0050568d0057</clientId>
+                </personality-type-2>
+                <learning-style-2>
+                    <awConfigId>401</awConfigId>
+                    <clientId>1cf41331-c413-11e3-a1a8-0050568d0057</clientId>
+                </learning-style-2>
+                <mi-advantage-2>
+                    <awConfigId>400</awConfigId>
+                    <clientId>0cf2445e-c413-11e3-a1a8-0050568d0057</clientId>
+                    <db>
+                        <adapter>Mysqli</adapter>
+                        <read>
+                            <host>hobsons.staging.humanesources.com</host>
+                            <username>hobsons</username>
+                            <password>Width-Needle-Laughter-Kneel-3</password>
+                            <dbname>hes</dbname>
+                        </read>
+                    </db>
+                </mi-advantage-2>
+                <personality-type-1>
+                    <sunset-after-year>2014</sunset-after-year>
+                </personality-type-1>
+            </assessments>
+            <marketing-content>
+                <signin>/marketing/signin.html</signin>
+                <signout>/marketing/signout.html</signout>
+                <marketplace-banner enabled="true">
+                    <url>http://www.naviance.com/marketplace/</url>
+                </marketplace-banner>
+            </marketing-content>
+            <ccr-curriculum>
+                <sso_key>b434726e-88ff-11e3-8028-58ea8e087b53</sso_key>
+                <sso_url>https://learn-qa.naviance.com/succeed</sso_url>
+                <activation_date>2013-08-01 01:00:00</activation_date>
+                <aws_sqs>
+                    <transmit_url>http://sqs.us-east-1.amazonaws.com/982847374517/QA_LH_Todo_Event</transmit_url>
+                    <receive_url>http://sqs.us-east-1.amazonaws.com/982847374517/QA_LH_SP_Event</receive_url>
+                    <key>AKIAJFH5DREO7EGZB7ZQ</key>
+                    <secret>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</secret>
+                    <polling_interval>20000</polling_interval>
+                    <wait_time>20</wait_time>
+                    <max_messages>10</max_messages>
+                    <region>us-east-1</region>
+                </aws_sqs>
+                <log_level>100</log_level>
+            </ccr-curriculum>
+            <elementary>
+                <sso_key>b434726e-88ff-11e3-8028-58ea8e087b53</sso_key> <!-- Shared secret, same as ccr-curriculum sso_key -->
+                <sso_url>https://elementary-qa.naviance.com/home</sso_url> <!-- Landing URL for application -->
+            </elementary>
+            <naviance-platform>
+                <sso_access_token>3c48190dee35f23b9390fd6d2d63a982</sso_access_token>
+                <sso_shared_secret>d424c207-2317-11e4-aa27-080027150945</sso_shared_secret>
+                <sso_staff_endpoint>https://succeed-n1.dev.naviance.com/iam/v1/index.php/sso/staff</sso_staff_endpoint>
+                <sso_student_endpoint>https://succeed-n1.dev.naviance.com/family-connection/auth/sso</sso_student_endpoint>
+                <sso_staff_error_endpoint>https://succeed-n1.dev.naviance.com/auth/accessdenied</sso_staff_error_endpoint>
+                <sso_student_error_endpoint>https://succeed-n1.dev.naviance.com/family-connection/error/access-denied</sso_student_error_endpoint>
+                <iam_authentication_base_url>https://iam-qa.naviance.com</iam_authentication_base_url>
+                <iam_authentication_auth_access_key>db92b04a-dcc8-11e5-822e-b79ef2e29546</iam_authentication_auth_access_key>
+                <iam_authentication_identity_access_key>4d462e78-64d4-4bd4-9081-4753822e59e1</iam_authentication_identity_access_key>
+                <iam_authentication_oauth_client_id>qa.fc.iam.auth</iam_authentication_oauth_client_id>
+                <iam_authentication_oauth_secret><![CDATA[j&ZzheuR82[hnX]r~]]></iam_authentication_oauth_secret>
+                <iam_authentication_oauth_scope>session.command session.read id.read</iam_authentication_oauth_scope>
+                <iam_authentication_oauth_token_uri>https://iamoauth-qa.naviance.com/oauth/token</iam_authentication_oauth_token_uri>
+                <iam_authentication_cookie_name>SESSION</iam_authentication_cookie_name>
+                <iam_authentication_cookie_domain>.naviance.com</iam_authentication_cookie_domain>
+                <iam_authentication_cookie_lifetime>0</iam_authentication_cookie_lifetime>
+                <iam_authentication_log_level>100</iam_authentication_log_level>
+                <iam_authentication_last_keepalive_session_parameter>iam.fc.auth.last_keepalive</iam_authentication_last_keepalive_session_parameter>
+                <iam_authentication_keepalive_interval>1200</iam_authentication_keepalive_interval>
+            </naviance-platform>
+            <collegesearch>
+                <db>
+                    <adapter>Mysqli</adapter>
+                    <read>
+                        <host>{{ cluster_address.value }}</host>
+                        <username>college_searcher</username>
+                        <password>Kx9fSJlykOb0Ivcxx3HD*T</password>
+                        <dbname>{{ default_database_name.value }}</dbname>
+                    </read>
+                    <write>
+                        <host>{{ cluster_address.value }}</host>
+                        <username>allegro</username>
+                        <password>DASMu33T1U3MQqYeqYQz*M</password>
+                        <dbname>{{ default_database_name.value }}</dbname>
+                    </write>
+                </db>
+            </collegesearch>
+            <collegeproduct-services>
+                <url>http://qa.hss.hobsons-us.com</url>
+                <key>997489b1bafc476592a0e7070f73c138</key>
+                <logger>
+                    <name>hcpsac</name>
+                    <path>/var/log/naviance/Hobsons_CollegeProductServices_API_Client.log</path>
+                </logger>
+            </collegeproduct-services>
+            <supermatch-services>
+                <url>http://qa.collegeview.com</url>
+            </supermatch-services>
+            <college-events>
+                <url>https://qa-fc-events-app.naviance.com/</url>
+            </college-events>
+            <college-hubs>
+                <url>https://qa-fc-hubs-app.naviance.com/</url>
+            </college-hubs>
+            <lor-requests>
+                <url>https://qa-fc-lor-app.naviance.com</url>
+            </lor-requests>
+            <testprep>
+                <session_encryption_key>tCL3Ghjphh8Lq6KVqbxygV7k</session_encryption_key>
+                <session_lifetime>10800</session_lifetime>
+                <cookie_name>SID</cookie_name>
+                <cookie_domain>.naviance.com</cookie_domain>
+                <cookie_lifetime>10800</cookie_lifetime>
+                <sso_url>https://iamoauth-qa.naviance.com/oauth/authorize?response_type=code&amp;client_id=bp.auth&amp;scope=ext.identity&amp;redirect_uri=https://staging.naviance.benchprep.com/sso/naviance</sso_url>
+		        <subscription_url>https://tp-gatekeeper-qa.naviance.com/testprep/student-subscriptions</subscription_url>
+                <subscription_access_token>a796f497-0af6-4072-ae69-9249d86fc643</subscription_access_token>
+                <oauth_token_uri>https://iamoauth-qa.naviance.com/oauth/token</oauth_token_uri>
+                <oauth_client_id>nav.testprep</oauth_client_id>
+                <oauth_client_secret>hDct94jZQ2</oauth_client_secret>
+                <oauth_scope>tp.read ext.identity</oauth_scope>
+            </testprep>
+            <oauth>
+                <url>https://iamoauth-qa.naviance.com/oauthoauth</url>
+                <authorize_uri>/authorize</authorize_uri>
+                <checktoken_uri>/check_token</checktoken_uri>
+                <client_id>naviance.dev</client_id>
+                <default_scope>ext.identity</default_scope>
+                <cookie_name>SID</cookie_name>
+            </oauth>
+            <product-links>
+                <link product_id="15" product_type="district" href="https://succeed-int.dev.naviance.com/district/test-prep" />
+            </product-links>
+        <naviance-powerschool>
+               <client>
+                   <url>https://iampssso-qa.naviance.com</url>
+                   <secret>5w6WZ8vO83193fvzn1e6wH96846p30a4</secret>
+                   <timeout>5</timeout>
+                   <connect_timeout>5</connect_timeout>
+               </client>
+               <log>
+                   <enable>0</enable>
+                   <name>naviance_powerschool</name>
+                   <path>/var/log/naviance/powerschool-int.log</path>
+                   <level>200</level>
+               </log>
+           </naviance-powerschool>
+           <activematch>
+      		<cache_ttl>300</cache_ttl>
+           </activematch>
+           <email>
+                <blacklist>
+                    <uri>http://localhost:8081/api/</uri>
+                </blacklist>
+            </email>
+        </modules>
+    </all>
+</config>

@@ -1,0 +1,52 @@
+management:
+  security:
+    enabled: false
+  health:
+    mongo:
+      enabled: false
+
+spring:
+  application:
+    name: NavianceLegacyApi
+  profiles:
+    # set to oauth2 when enabling auth
+    active: oauth2,aws
+  datasource:
+    url: jdbc:mysql://{{ cluster_address.value }}/{{ naviance.database }}?zeroDateTimeBehavior=convertToNull
+    username: {{ naviance.user }}
+    password: {{ naviance.password }}
+  jpa:
+    show-sql: false
+
+security:
+  basic:
+    # set to true when enabling oauth
+    enabled: true
+  sessions: stateless
+
+oauth2:
+  clientId: qa.lor.legacy
+  clientSecret: 5997d412-f825-11e5-9ce9-5e5517507c66
+  checkTokenEndpointURL: https://iamoauth-aws-qa.naviance.com/oauth/check_token
+
+logging:
+#  level:
+#    ROOT: DEBUG
+  file: /opt/naviance/legacyapi/logs/${spring.application.name}.log
+
+cloud:
+  aws:
+    credentials:
+      accessKey: AKIAIQRQMCURRRKWQ7GA
+      secretKey: 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
+    region:
+      static: us-east-1
+    stack:
+      auto: false
+  config:
+    enabled: false
+
+sqs:
+  navianceCollegeVisitsQueueName: Staging_navianceVisitsQueue
+  navianceSchoolSettingsQueueName: Staging_navianceSchoolSettingsQueue
+  intersectCollegeVisitsQueueName: Staging_intersectVisitsQueue

@@ -1,0 +1,3 @@
+# The API key for NewRelic
+
+NEW_RELIC_API_KEY="c3fefa593e1e2cdbf60b9f34e165d1e52040722e393e5f8"

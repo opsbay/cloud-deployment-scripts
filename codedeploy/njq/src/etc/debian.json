@@ -1,0 +1,7 @@
+{
+    "documentRoot": "/opt/{{ APP_NAME }}/www",
+    "phpFpmSockFile": "/run/php/php5.6-fpm.sock",
+    "wwwGroup": "www-data",
+    "wwwUser": "www-data",
+    "serverRoot": "/etc/apache2"
+}

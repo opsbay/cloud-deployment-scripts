@@ -1,0 +1,34 @@
+version: 0.0
+os: linux
+files:
+ - source: bin/
+   destination: /opt/nodejs/bin
+ - source: etc/
+   destination: /etc/systemd/system
+ - source: www/
+   destination: /opt/nodejs/www
+hooks:
+  ApplicationStop:
+    - location: bin/aws_alb_deregister.sh
+      timeout: 60
+      runas: root
+    - location: bin/stop-server.sh
+      timeout: 300
+      runas: root
+    - location: bin/clean-directory.sh
+      timeout: 60
+      runas: root
+  BeforeInstall:
+    - location: bin/prepare-directory.sh
+      timeout: 30
+      runas: root
+    - location: bin/configure_splunk.sh
+      timeout: 300
+      runas: root
+  ApplicationStart: 
+    - location: bin/start-server.sh
+      timeout: 300
+      runas: root
+    - location: bin/aws_alb_register.sh
+      timeout: 60
+      runas: root

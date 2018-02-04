@@ -1,0 +1,17 @@
+{
+  "cluster_address": {
+    "sensitive": false,
+    "type": "string",
+    "value": "tf-aurora-qa-v2.cluster-c5nlhcuq5q88.us-east-1.rds.amazonaws.com"
+  },
+  "cluster_port": {
+    "sensitive": false,
+    "type": "string",
+    "value": "3306"
+  },
+  "reader_address": {
+    "sensitive": false,
+    "type": "string",
+    "value": "tf-aurora-qa-v2.cluster-ro-c5nlhcuq5q88.us-east-1.rds.amazonaws.com"
+  }
+}

@@ -1,0 +1,6 @@
+server:
+  port: 8050
+
+management:
+  port: 8052
+  context_path:

@@ -1,0 +1,56 @@
+ ## inputs.conf
+
+##### Freeform logs #####
+[monitor:///var/log/dmesg]
+disabled = false
+
+[monitor:///var/log/boot.log]
+disabled = false
+
+# Catch codedeploy logs and other aws tool logs
+[monitor:///var/log/aws/.../*.log]
+disabled = false
+
+###### Syslog Format #######
+[monitor:///var/log/messages]
+sourcetype=syslog
+disabled = false
+
+[monitor:///var/log/secure]
+sourcetype=syslog
+disabled = false
+
+[monitor:///var/log/cron]
+sourcetype=syslog
+disabled = false
+
+[monitor:///var/log/spooler]
+sourcetype=syslog
+disabled = false
+
+###### Audit Format #######
+[monitor:///var/log/audit/audit.log]
+disabled = false
+
+###### Web Server Logs ######
+[monitor:///var/log/httpd/*access*log]
+sourcetype=apache:access
+disabled = false
+
+[monitor:///var/log/httpd/*error*log]
+sourcetype=apache:error
+disabled = false
+
+[monitor:///var/log/nginx/*access*log]
+sourcetype = nginx:plus:access
+disabled = false
+
+[monitor:///var/log/nginx/*error*log]
+sourcetype = nginx:plus:error
+disabled = false
+
+[monitor:///var/log/php-fpm/*log]
+disabled = false
+
+###### CodeDeploy Log ######
+[monitor:///opt/codedeploy-agent/deployment-root/deployment-logs/codedeploy-agent-deployments.log]

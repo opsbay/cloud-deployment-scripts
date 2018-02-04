@@ -1,0 +1,17 @@
+[Unit]
+Description=Newrelic Linker service
+Documentation=https://docs.newrelic.com/docs/servers/new-relic-servers-linux/installation-configuration/install-other-linux-new-relic-servers
+Wants=network.target
+Wants=network-online.target
+Wants=newrelic-sysmond.service
+After=network.target
+After=network-online.target
+Before=newrelic-sysmond.service
+
+[Service]
+Type=oneshot
+ExecStart=/opt/newrelic/newrelic_linker.sh
+RemainAfterExit=no
+
+[Install]
+WantedBy=multi-user.target

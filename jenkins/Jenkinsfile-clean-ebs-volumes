@@ -1,0 +1,185 @@
+#!/usr/bin/env groovy
+// Jenkinsfile for clean-ebs-volumes
+
+
+def APP_DESCRIPTION = 'Git Branch, Tag, or Commit reference for ebs-cleanup-script'
+def APP_DEFAULT_BRANCH = 'master'
+
+// Thanks https://stackoverflow.com/a/4244184/424301
+Random random = new Random()
+def captchaLeft = random.nextInt(12) + 1
+def captchaRight = random.nextInt(12) + 1
+def String captchaAnswer = (captchaLeft * captchaRight)
+def captchaAnswerHash = ((captchaAnswer as Integer) ^ 123456789).toString()
+
+def captchaQuestion = """Solve CAPTCHA to apply production changes or to destroy anything:
+What do you get when you multiply ${captchaLeft} by ${captchaRight}?
+"""
+
+properties([
+    parameters([
+        choiceParam(name: 'awsAccount',
+                     description: 'Target AWS Account',
+                     choices: [
+                        "hobsons-naviancedev",
+                        "hobsons-navianceprod",
+                     ].join("\n")),
+        stringParam(name: 'git_branch_tag_or_commit', 
+               description: APP_DESCRIPTION,
+               defaultValue: APP_DEFAULT_BRANCH),
+        stringParam(name: 'captchaGuess',
+                    defaultValue: '',
+                    description: captchaQuestion),
+        stringParam(name: 'captchaAnswerHash',
+                    defaultValue: captchaAnswerHash,
+                    description: "CAPTCHA answer hash (do not modify)"),
+    ])
+])
+
+def shortaccount = params.awsAccount.split('-')[1]
+currentBuild.displayName = "#${BUILD_NUMBER}: ${shortaccount} "
+
+def aws_account_credentials = (params.awsAccount=='hobsons-navianceprod') ?  'unmanaged-jenkins-terraform-prod' : 'unmanaged-jenkins-terraform'
+
+def wrapStep = { steps ->
+    withCredentials([usernamePassword(credentialsId: aws_account_credentials,
+                                      passwordVariable: 'AWS_SECRET_ACCESS_KEY',
+                                      usernameVariable: 'AWS_ACCESS_KEY_ID')]) {
+        wrap([$class: 'AnsiColorBuildWrapper', 'colorMapName': 'XTerm', 'defaultFg': 1, 'defaultBg': 2]) {
+              // This is the current syntax for invoking a build wrapper, naming the class.
+              wrap([$class: 'TimestamperBuildWrapper']) {
+                  steps()
+              }
+        }
+    }
+}
+
+void sendHipchatNotification(String message, Boolean notify = false, String color = null) {
+    def time = "after ${currentBuild.durationString}"
+    def result = currentBuild.result ?: ''
+    def decoded_job_name=java.net.URLDecoder.decode(env.JOB_NAME, "UTF-8");
+    switch (currentBuild.result) {
+        case 'SUCCESS':
+            color = color ?: 'GREEN'
+            break
+        case 'FAILURE':
+            notify = true
+            color = color ?: 'RED'
+            break
+        case 'UNSTABLE':
+            color = color ?: 'YELLOW'
+            notify = true
+            break
+        case 'ABORTED':
+            color = color ?: 'GRAY'
+            notify = true
+            break
+        case 'NOT_BUILT':
+            color = color ?: 'GRAY'
+            break
+        default:
+            color = color ?: 'PURPLE'
+            break
+    }
+
+    message =  """
+               ${message}<br/>
+               <a href=\"$env.BUILD_URL\">${decoded_job_name} #${env.BUILD_NUMBER}</a><br/>
+               ${result} ${time}
+               """
+    hipchatSend color: color,
+                notify: notify,
+                room: "Naviance Modernization Notification Room",
+                message: message
+}
+
+
+def actions = []
+
+
+def runStages = { mainBuild ->
+    stage("Validate") {
+        def message = ""
+        actions.push("validate")
+        if (params.awsAccount == "hobsons-navianceprod") {
+            if (! params.captchaGuess) {
+                message += "No CAPTCHA guess detected. "
+            } else {
+                def Integer guess = params.captchaGuess as Integer
+                def Integer answer = (params.captchaAnswerHash as Integer) ^ 123456789
+                def guessHash = (guess ^ 123456789).toString()
+                if (guess != answer) {
+                    message += "CAPTCHA answer was wrong. guess: ${guess} answer: ${answer} guessHash: ${guessHash} answerHash: ${params.captchaAnswerHash}. "
+                }
+            }
+        }
+        if (message != "") {
+            echo message
+            sendHipchatNotification(message,false,'YELLOW')
+            currentBuild.result = 'UNSTABLE'
+            currentBuild.description = message
+        }
+    }
+    if (currentBuild.result != 'UNSTABLE') {
+        mainBuild()
+    }
+}
+
+def mainBuild = {
+    stage("Checkout") {
+        actions.push("checkout")
+        node {
+            git url: 'git@github.com:naviance/cloud-deployment-scripts.git', credentialsId: 'github-hobsonsbuildserver-ssh', branch: "${params.git_branch_tag_or_commit}"
+            sh 'git clean -fdx && cp env.sh.sample env.sh'
+            stash includes: '**', excludes: '.git/', name: 'src'
+
+            def author = sh (
+                script: 'git --no-pager show -s --format=%ae',
+                returnStdout: true
+            ).trim()
+            def revision = sh (
+                script: 'git describe --always --tags --long',
+                returnStdout: true
+            ).trim()
+            currentBuild.description = [
+                "${revision} by ${author}"
+            ].join("\n")
+        }
+    }
+    stage("Run Linters") {
+        actions.push("lint")
+        node {
+            unstash 'src'
+            wrapStep({
+                sh 'make shellcheck'
+            })
+        }
+    }
+
+    stage ("Run Cleanup Script") {
+        actions.push("cleanup-ebs")
+        node {
+            unstash 'src'
+            wrapStep({
+                sh "./bin/clean-unused-ebs-volumes.sh"
+            })
+        }
+    }
+}
+
+try {
+    sendHipchatNotification("Build Started")
+    runStages(mainBuild)
+    currentBuild.result = currentBuild.result ?: "SUCCESS"
+} catch (err) {
+    if (currentBuild.result != 'UNSTABLE') {
+        currentBuild.result = 'FAILURE'
+        throw err
+    }
+} finally {
+    stage("Notify") {
+        currentBuild.displayName += actions.join(' ')
+        message =  "Build Finished. Actions attempted: ${actions.join(' ')}"
+        sendHipchatNotification(message)
+    }
+}

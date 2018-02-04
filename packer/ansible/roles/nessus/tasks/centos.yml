@@ -1,0 +1,90 @@
+---
+
+  - name: Check if nessus agent is installed
+    tags: [ install, nessusinstall]
+    stat: path=/opt/nessus_agent/sbin/nessuscli
+    register: nessuscli_path
+
+  # For int casting, thanks to:
+  # Reference: https://serverfault.com/questions/587727/how-to-unify-package-installation-tasks-in-ansible/649355#649355
+  #            https://github.com/naviance/cloud-deployment-scripts/blob/master/packer/ansible/roles/nodejs/tasks/main.yml
+  # For var constructing var from vars:
+  # Reference: https://stackoverflow.com/questions/29276198/ansible-how-to-construct-a-variable-from-another-variable-and-then-fetch-its-v
+  #            http://docs.ansible.com/ansible/latest/playbooks_variables.html#hey-wait-a-yaml-gotcha
+  - name: Check if installer is already copied
+    tags: [ install, nessusinstall ]
+    vars: [ rpm_build : 'NessusAgent-6.10.9-es{{ansible_distribution_major_version | int}}.x86_64.rpm' ]
+    stat: path={{nessus_working_directory}}{{rpm_build}}
+    register: nessus_rpm_path
+
+  - name: Notify if Nessus is already installed
+    tags: [ install, nessusinstall ]
+    debug: msg='Nessus is already installed under /opt/nessus_agent/sbin/nessuscli'
+    when: nessuscli_path.stat.exists == true
+
+  - name: Ensure the directory {{nessus_working_directory}} exists
+    tags: [ install, nessusinstall ]
+    file: path={{nessus_working_directory}} state=directory
+
+  - name: Notify if Nessus RPM is already copied
+    tags: [ install, nessusinstall ]
+    debug: msg='Nessus RPM is already copied'
+    when: nessus_rpm_path.stat.exists == true
+
+  # Reference: https://stackoverflow.com/questions/29276198/ansible-how-to-construct-a-variable-from-another-variable-and-then-fetch-its-v
+  #            http://docs.ansible.com/ansible/latest/playbooks_variables.html#hey-wait-a-yaml-gotcha
+  - name: Push RPM package to server
+    tags: [ install, nessusinstall ]
+    become: yes
+    become_method: sudo
+    vars: [ rpm_build : 'NessusAgent-6.10.9-es{{ansible_distribution_major_version | int}}.x86_64.rpm' ]
+    copy: >
+      src={{rpm_build}}
+      dest={{nessus_working_directory}}{{rpm_build}}
+    when: nessus_rpm_path.stat.exists == false
+
+  # Reference: https://stackoverflow.com/questions/29276198/ansible-how-to-construct-a-variable-from-another-variable-and-then-fetch-its-v
+  #            http://docs.ansible.com/ansible/latest/playbooks_variables.html#hey-wait-a-yaml-gotcha
+  - name: Install RPM
+    tags: [ install, nessusinstall ]
+    vars: [ rpm_build : 'NessusAgent-6.10.9-es{{ansible_distribution_major_version | int}}.x86_64.rpm' ]
+    yum:
+      name: "{{nessus_working_directory}}{{rpm_build}}"
+      state: present
+
+  - name: Generate nessus linker script
+    tags: [ install, nessusinstall ]
+    template:
+      src: common.sh
+      dest: /opt/nessus_agent/common.sh
+      owner: root
+      mode: 0744
+
+  - include: centos_6.yml
+    when: ansible_distribution_major_version < '7'
+
+  - include: centos_7.yml
+    when: ansible_distribution_major_version >= '7'
+
+  - name: Enable Nessus agent service at startup and start it
+    tags: [ install, nessusinstall ]
+    service:
+      name: nessusagentlinker
+      enabled: yes
+
+  # We do not want to start and check the status in the Ansible role
+  # as the services can't be started when executing the build. We defer
+  # that work to runtime.
+  #
+  # - name: Check if agent is linked
+  #   tags: [ install, nessusinstall ]
+  #   become: yes
+  #   become_method: sudo
+  #   command: '/opt/nessus_agent/sbin/nessuscli agent status 2>&1'
+  #   register: nessus_agent_status
+  #   failed_when:
+  #     - 'nessus_agent_status.rc != 0 and nessus_agent_status.rc != 2'
+  #
+  # - name: Display nessus linker status
+  #   tags: [ install, nessusinstall ]
+  #   debug: msg="Status = {{nessus_agent_status.stdout}}"

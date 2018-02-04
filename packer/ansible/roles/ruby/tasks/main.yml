@@ -1,0 +1,14 @@
+---
+ - include: ruby-CentOS7.yml
+   when:
+    - ansible_distribution == "CentOS"
+    - ansible_distribution_major_version == "7"
+
+ - include: ruby-CentOS6.yml
+   when:
+    - ansible_distribution == "CentOS"
+    - ansible_distribution_major_version == "6"
+
+ - include: ruby-Ubuntu.yml
+   when:
+    - ansible_distribution == "Ubuntu"

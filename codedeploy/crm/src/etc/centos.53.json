@@ -1,0 +1,6 @@
+{
+    "phpFpmSockFile": "/var/run/php-fpm/php-fpm.sock",
+    "wwwGroup": "apache",
+    "wwwUser": "apache",
+    "documentRoot": "/httpd/crm"
+}

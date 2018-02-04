@@ -1,0 +1,6 @@
+{
+    "phpFpmSockFile": "/run/php/php5.6-fpm.sock",
+    "wwwGroup": "www-data",
+    "wwwUser": "www-data",
+    "documentRoot": "/httpd/crm"
+}

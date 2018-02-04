@@ -1,0 +1,11 @@
+---
+
+# Installation of Newrelic agent in Centos 6
+  - name: Copy service file for Newrelic linker (init.d)
+    tags: [ install, newrelicinstall ]
+    copy:
+      src: "{{ role_path }}/files/newreliclinker_service.sh"
+      dest: /etc/init.d/newreliclinker
+      owner: root
+      group: root
+      mode: 0755

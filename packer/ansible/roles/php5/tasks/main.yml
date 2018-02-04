@@ -1,0 +1,27 @@
+---
+- include: setup-Ubuntu.yml
+  vars:
+    wwwUser: 'www-data'
+    wwwGroup: 'www-data'
+    phpFpmSockFile: '/run/php/php5.6-fpm.sock'
+  when: ansible_distribution == 'Ubuntu'
+
+- include: setup-CentOS6.yml
+  vars:
+    wwwUser: 'nginx'
+    wwwGroup: 'nginx'
+    phpFpmSockFile: '/var/run/php-fpm/php-fpm.sock'
+  when:
+    - ansible_distribution == "CentOS"
+    - ansible_distribution_major_version == "6"
+
+
+- include: setup-CentOS7.yml
+  vars:
+    wwwUser: 'nginx'
+    wwwGroup: 'nginx'
+    phpFpmSockFile: '/var/run/php-fpm/php-fpm.sock'
+  when:
+    - ansible_distribution == "CentOS"
+    - ansible_distribution_major_version == "7"
+

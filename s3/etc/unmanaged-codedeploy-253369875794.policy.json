@@ -1,0 +1,239 @@
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "unmanaged-jenkins-terraform-prod",
+            "Effect": "Allow",
+            "Principal": {
+                "AWS": "arn:aws:iam::989043056009:user/unmanaged-jenkins-terraform-prod"
+            },
+            "Action": "s3:Get*",
+            "Resource": "arn:aws:s3:::unmanaged-codedeploy-253369875794/*"
+        },
+        {
+            "Sid": "tf-testapp-ubuntu-production-cd_role",
+            "Effect": "Allow",
+            "Principal": {
+                "AWS": "arn:aws:iam::989043056009:root"
+            },
+            "Action": "s3:Get*",
+            "Resource": "arn:aws:s3:::unmanaged-codedeploy-253369875794/*"
+        },
+        {
+            "Sid": "tf-testapp-53-production-cd_role",
+            "Effect": "Allow",
+            "Principal": {
+                "AWS": "arn:aws:iam::989043056009:root"
+            },
+            "Action": "s3:Get*",
+            "Resource": "arn:aws:s3:::unmanaged-codedeploy-253369875794/*"
+        },
+        {
+            "Sid": "tf-testapp-56-production-cd_role",
+            "Effect": "Allow",
+            "Principal": {
+                "AWS": "arn:aws:iam::989043056009:root"
+            },
+            "Action": "s3:Get*",
+            "Resource": "arn:aws:s3:::unmanaged-codedeploy-253369875794/*"
+        },
+        {
+            "Sid": "tf-connection-53-production-cd_role",
+            "Effect": "Allow",
+            "Principal": {
+                "AWS": "arn:aws:iam::989043056009:root"
+            },
+            "Action": "s3:Get*",
+            "Resource": "arn:aws:s3:::unmanaged-codedeploy-253369875794/*"
+        },
+        {
+            "Sid": "tf-connection-56-production-cd_role",
+            "Effect": "Allow",
+            "Principal": {
+                "AWS": "arn:aws:iam::989043056009:root"
+            },
+            "Action": "s3:Get*",
+            "Resource": "arn:aws:s3:::unmanaged-codedeploy-253369875794/*"
+        },
+        {
+            "Sid": "tf-succeed-53-production-cd_role",
+            "Effect": "Allow",
+            "Principal": {
+                "AWS": "arn:aws:iam::989043056009:root"
+            },
+            "Action": "s3:Get*",
+            "Resource": "arn:aws:s3:::unmanaged-codedeploy-253369875794/*"
+        },
+        {
+            "Sid": "tf-succeed-56-production-cd_role",
+            "Effect": "Allow",
+            "Principal": {
+                "AWS": "arn:aws:iam::989043056009:root"
+            },
+            "Action": "s3:Get*",
+            "Resource": "arn:aws:s3:::unmanaged-codedeploy-253369875794/*"
+        },
+        {
+            "Sid": "tf-servicesapi-53-production-cd_role",
+            "Effect": "Allow",
+            "Principal": {
+                "AWS": "arn:aws:iam::989043056009:root"
+            },
+            "Action": "s3:Get*",
+            "Resource": "arn:aws:s3:::unmanaged-codedeploy-253369875794/*"
+        },
+        {
+            "Sid": "tf-servicesapi-56-production-cd_role",
+            "Effect": "Allow",
+            "Principal": {
+                "AWS": "arn:aws:iam::989043056009:root"
+            },
+            "Action": "s3:Get*",
+            "Resource": "arn:aws:s3:::unmanaged-codedeploy-253369875794/*"
+        },
+        {
+            "Sid": "tf-njq-53-production-cd_role",
+            "Effect": "Allow",
+            "Principal": {
+                "AWS": "arn:aws:iam::989043056009:root"
+            },
+            "Action": "s3:Get*",
+            "Resource": "arn:aws:s3:::unmanaged-codedeploy-253369875794/*"
+        },
+        {
+            "Sid": "tf-njq-56-production-cd_role",
+            "Effect": "Allow",
+            "Principal": {
+                "AWS": "arn:aws:iam::989043056009:root"
+            },
+            "Action": "s3:Get*",
+            "Resource": "arn:aws:s3:::unmanaged-codedeploy-253369875794/*"
+        },
+        {
+            "Sid": "tf-learnapi-production-cd_role",
+            "Effect": "Allow",
+            "Principal": {
+                "AWS": "arn:aws:iam::989043056009:root"
+            },
+            "Action": "s3:Get*",
+            "Resource": "arn:aws:s3:::unmanaged-codedeploy-253369875794/*"
+        },
+        {
+            "Sid": "tf-testapp-ubuntu-preprod-cd_role",
+            "Effect": "Allow",
+            "Principal": {
+                "AWS": "arn:aws:iam::989043056009:root"
+            },
+            "Action": "s3:Get*",
+            "Resource": "arn:aws:s3:::unmanaged-codedeploy-253369875794/*"
+        },
+        {
+            "Sid": "tf-testapp-53-preprod-cd_role",
+            "Effect": "Allow",
+            "Principal": {
+                "AWS": "arn:aws:iam::989043056009:root"
+            },
+            "Action": "s3:Get*",
+            "Resource": "arn:aws:s3:::unmanaged-codedeploy-253369875794/*"
+        },
+        {
+            "Sid": "tf-testapp-56-preprod-cd_role",
+            "Effect": "Allow",
+            "Principal": {
+                "AWS": "arn:aws:iam::989043056009:root"
+            },
+            "Action": "s3:Get*",
+            "Resource": "arn:aws:s3:::unmanaged-codedeploy-253369875794/*"
+        },
+        {
+            "Sid": "tf-connection-53-preprod-cd_role",
+            "Effect": "Allow",
+            "Principal": {
+                "AWS": "arn:aws:iam::989043056009:root"
+            },
+            "Action": "s3:Get*",
+            "Resource": "arn:aws:s3:::unmanaged-codedeploy-253369875794/*"
+        },
+        {
+            "Sid": "tf-connection-56-preprod-cd_role",
+            "Effect": "Allow",
+            "Principal": {
+                "AWS": "arn:aws:iam::989043056009:root"
+            },
+            "Action": "s3:Get*",
+            "Resource": "arn:aws:s3:::unmanaged-codedeploy-253369875794/*"
+        },
+        {
+            "Sid": "tf-succeed-53-preprod-cd_role",
+            "Effect": "Allow",
+            "Principal": {
+                "AWS": "arn:aws:iam::989043056009:root"
+            },
+            "Action": "s3:Get*",
+            "Resource": "arn:aws:s3:::unmanaged-codedeploy-253369875794/*"
+        },
+        {
+            "Sid": "tf-succeed-56-preprod-cd_role",
+            "Effect": "Allow",
+            "Principal": {
+                "AWS": "arn:aws:iam::989043056009:root"
+            },
+            "Action": "s3:Get*",
+            "Resource": "arn:aws:s3:::unmanaged-codedeploy-253369875794/*"
+        },
+        {
+            "Sid": "tf-servicesapi-53-preprod-cd_role",
+            "Effect": "Allow",
+            "Principal": {
+                "AWS": "arn:aws:iam::989043056009:root"
+            },
+            "Action": "s3:Get*",
+            "Resource": "arn:aws:s3:::unmanaged-codedeploy-253369875794/*"
+        },
+        {
+            "Sid": "tf-servicesapi-56-preprod-cd_role",
+            "Effect": "Allow",
+            "Principal": {
+                "AWS": "arn:aws:iam::989043056009:root"
+            },
+            "Action": "s3:Get*",
+            "Resource": "arn:aws:s3:::unmanaged-codedeploy-253369875794/*"
+        },
+        {
+            "Sid": "tf-services-api-preprod-cd_role",
+            "Effect": "Allow",
+            "Principal": {
+                "AWS": "arn:aws:iam::989043056009:root"
+            },
+            "Action": "s3:Get*",
+            "Resource": "arn:aws:s3:::unmanaged-codedeploy-253369875794/*"
+        },
+        {
+            "Sid": "tf-njq-53-preprod-cd_role",
+            "Effect": "Allow",
+            "Principal": {
+                "AWS": "arn:aws:iam::989043056009:root"
+            },
+            "Action": "s3:Get*",
+            "Resource": "arn:aws:s3:::unmanaged-codedeploy-253369875794/*"
+        },
+        {
+            "Sid": "tf-njq-56-preprod-cd_role",
+            "Effect": "Allow",
+            "Principal": {
+                "AWS": "arn:aws:iam::989043056009:root"
+            },
+            "Action": "s3:Get*",
+            "Resource": "arn:aws:s3:::unmanaged-codedeploy-253369875794/*"
+        },
+        {
+            "Sid": "tf-learnapi-preprod-cd_role",
+            "Effect": "Allow",
+            "Principal": {
+                "AWS": "arn:aws:iam::989043056009:root"
+            },
+            "Action": "s3:Get*",
+            "Resource": "arn:aws:s3:::unmanaged-codedeploy-253369875794/*"
+        }
+    ]
+}

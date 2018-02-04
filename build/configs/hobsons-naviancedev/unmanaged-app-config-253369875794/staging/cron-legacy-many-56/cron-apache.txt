@@ -1,0 +1,1 @@
+*/2 * * * *     /httpd/k12/scripts/DataImport/district_import_fixed_sqs.sh

@@ -1,0 +1,27 @@
+---
+
+# Installation of Newrelic agent in Centos 7
+
+  - name: Generate newrelic linker script for systemd service
+    tags: [ install, newrelicinstall ]
+    copy:
+      src: "{{ role_path }}/files/newrelic_linker.sh"
+      dest: /opt/newrelic/newrelic_linker.sh
+      owner: root
+      group: root
+      mode: 0755
+
+  - name: Generate service file for newrelic linker (systemd)
+    tags: [ install, newrelicinstall ]
+    copy:
+      src: "{{ role_path }}/files/newreliclinker.service"
+      dest: /etc/systemd/system/newreliclinker.service
+      owner: root
+      group: root
+      mode: 0644
+
+  - name: Reload systemd services index
+    tags: [ install, newrelicinstall ]
+    become: yes
+    become_method: sudo
+    command: 'systemctl daemon-reload'

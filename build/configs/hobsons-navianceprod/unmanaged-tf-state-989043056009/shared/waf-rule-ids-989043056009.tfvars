@@ -1,0 +1,8 @@
+cf-waf-stack-sql-injection-rule = "39bd2d53-7076-4465-a6fc-07309531ab09"
+cf-waf-stack-waf-ip-reputation-lists-rule-2 = "684af8ed-683d-4b3d-a248-669ee8d0a4f6"
+cf-waf-stack-xss-rule = "73dc4bab-745e-4f7e-9c0e-00420f0205a5"
+cf-waf-stack-blacklist-rule = "8af9bc4b-2dea-419c-9da3-0fe02b961784"
+cf-waf-stack-bad-bot-rule = "9afe52ef-1468-4e5a-92d3-a4a2afc5353a"
+cf-waf-stack-auto-block-rule = "abb89694-6d92-4565-8776-2a8173d315f7"
+cf-waf-stack-waf-ip-reputation-lists-rule-1 = "b6d6ae5a-78a1-4aeb-b6b4-da475c0e04bd"
+cf-waf-stack-whitelist-rule = "b8efdfc8-a27d-4448-8219-31e52083353d"

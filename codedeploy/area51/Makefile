@@ -1,0 +1,137 @@
+DEFAULT_GOAL := all
+.PHONY : all clean prep build prep_bucket s3copy deploy mobileApi navianceAuthBridge
+
+# Thanks Stack Overflow http://stackoverflow.com/a/8080530/424301
+DIR := $(dir $(lastword $(MAKEFILE_LIST)))
+SHELL := /bin/bash
+
+SRC := $(DIR)/src
+BUILD := $(DIR)/build
+ARCHIVE_DIR := $(DIR)build/archive
+PHP_BUILD_VERSION_FILE=$(ARCHIVE_DIR)/etc/phpversion.txt
+PHP_BUILD_VERSION_DIR=$(ARCHIVE_DIR)/etc
+APP_NAME := area51
+APP_PATH := opt/app
+ARCHIVE := $(APP_NAME)
+ZIP := $(BUILD)/$(ARCHIVE).zip
+PHP_VERSION := 56
+PHP_VERSION_CODE := $(shell $(DIR)../../bin/get-php-version.sh $(PHP_VERSION))
+DOCKERFILE_NAME := Dockerfile.56
+MONITOR_DEPLOYMENT := $(DIR)../../bin/monitor-deployment.sh
+GET_BUILD_NUMBER := $(DIR)../../bin/get_build_number.sh
+get_s3_file=$(2)-$(shell  $(GET_BUILD_NUMBER) $(1)).zip
+AWS_ACCOUNT_ID := $(shell \
+	. $(DIR)/../../bin/common.sh >/dev/null 2>&1  && \
+	get_aws_account_id)
+
+# Thanks Stack Overflow https://stackoverflow.com/questions/38801796/makefile-set-if-variable-is-empty
+ifeq ($(AWS_ACCOUNT_ID),)
+     $(error AWS_ACCOUNT_ID not defined)
+endif
+
+BUCKET_NAME := unmanaged-codedeploy-$(AWS_ACCOUNT_ID)
+BUCKET := s3://$(BUCKET_NAME)
+# All application folder names
+AREA51 := area51
+AREA51_BUILD := $(DIR)../../../$(AREA51)
+
+SOURCES := $(wildcard $(SRC)/*) $(wildcard $(SRC)/bin/*) $(wildcard $(SRC)/etc/*) $(DIR)$(DOCKERFILE_NAME)
+
+CONTAINER_TAG_NAME := $(APP_NAME)-codedeploy-$(PHP_VERSION_CODE):$(shell $(GET_BUILD_NUMBER) $(DIR)Makefile)
+
+DEPLOYMENT_APP := tf-area51-$(PHP_VERSION_CODE)
+DEPLOYMENT_GROUP := qa
+
+# docker build is fast to run the second time around.
+# don't sweat the dependencies.
+build:
+	$(DIR)/../../bin/vpn-check.sh
+	@echo "Build main Docker container"
+	docker build -f=$(DOCKERFILE_NAME) . -t $(CONTAINER_TAG_NAME)
+	@echo "Docker built OK: $(DOCKERFILE_NAME) yielding $(CONTAINER_TAG_NAME)"
+
+$(ZIP): $(SOURCES)
+	$(DIR)/../../bin/vpn-check.sh
+
+	rsync -a $(SRC)/ $(ARCHIVE_DIR)
+
+	rsync -a \
+		$(DIR)../../bin/aws/ \
+		$(DIR)../../bin/manage-splunk.sh \
+		$(ARCHIVE_DIR)/bin/
+
+	docker run --rm -v $$(pwd):/$(APP_PATH) $(CONTAINER_TAG_NAME) /bin/bash -c \
+		"/bin/bash --login -c '\
+			php --version \
+				| head -n1 \
+				| cut -d\" \" -f2 \
+				| cut -d\".\" -f1,2 \
+				| cut -d\".\" -f1,2'" \
+				> $(PHP_BUILD_VERSION_FILE)
+	# Check for the PHP version here and fail early.
+	PHP_BUILD_VERSION=$$(cat $(PHP_BUILD_VERSION_FILE)); \
+	PHP_VERSION_PARSED=$$($(DIR)../../bin/get-php-version.sh $$PHP_BUILD_VERSION); \
+	if [ $$PHP_VERSION_PARSED != "$(PHP_VERSION_CODE)" ]; then \
+		echo "ERROR: The project was built with PHP version $$PHP_VERSION_PARSED but the expected version is $(PHP_VERSION_CODE)"; \
+		exit 1; \
+	fi
+
+	for f in $(ARCHIVE_DIR)/appspec.yml $(ARCHIVE_DIR)/bin/common.sh $(ARCHIVE_DIR)/etc/*.json; do \
+		sed -i.bak -e "s/{{ APP_NAME }}/${APP_NAME}/g" $$f \
+		&& rm -f $$f.bak; \
+	done
+	for f in $(ARCHIVE_DIR)/bin/common.sh; do \
+		sed -i.bak -e "s/{{ PHP_VERSION }}/${PHP_VERSION_CODE}/g" $$f \
+		&& rm -f $$f.bak; \
+	done
+
+
+	@echo "******** Collecting $(AREA51) files"
+	# Thanks Stack Overflow https://unix.stackexchange.com/a/100661/137901
+	rsync -a --exclude='.git/' $(AREA51_BUILD)/ $(ARCHIVE_DIR)/$(AREA51)
+	@echo "******** Zipping CodeDeploy Archive"
+	. $(DIR)../../bin/common.sh \
+		&& ensure_zip
+	cd $(ARCHIVE_DIR) \
+		&& zip -q -r ../../$(ZIP) *
+	# We are going to fake out Make by touching this file when we are
+	# done with the build, so that we can avoid re-running the docker
+	# stuff and the zip file if we can avoid it.
+	touch $(DOCKERFILE_NAME)
+
+clean:
+	rm -rf $(BUILD)
+
+prep:
+	mkdir -p $(PHP_BUILD_VERSION_DIR)
+
+prep_bucket:
+	. $(DIR)/../../env.sh && \
+	    . $(DIR)../../bin/common.sh \
+			&& ensure_awscli
+	. $(DIR)/../../env.sh && \
+		aws s3 ls $(BUCKET) >/dev/null \
+			|| aws s3 mb $(BUCKET)
+
+deploy: prep $(ZIP) s3copy
+	. $(DIR)/../../env.sh && \
+	S3_FILE=$(get_s3_file,$(ZIP),$(ARCHIVE)) && \
+	deployment=$$(aws deploy create-deployment \
+		--application-name $(DEPLOYMENT_APP) \
+		--s3-location bucket=$(BUCKET_NAME),key=$(APP_NAME)/$$S3_FILE,bundleType=zip \
+		--deployment-group-name $(DEPLOYMENT_GROUP) \
+		--output text)  && \
+	$(MONITOR_DEPLOYMENT) $$deployment
+
+s3_copy = S3_FILE=$(call get_s3_file,$(1),$(2)) && \
+	S3_PHP_BUILD_VERSION_FILE=$(BUCKET)/$(APP_NAME)/$${S3_FILE}.php-version.txt && \
+	aws s3 ls $(BUCKET)/$(APP_NAME)/$$S3_FILE \
+	&& echo "File in S3 is already up to date" \
+	|| (aws s3 cp $(1) $(BUCKET)/$(APP_NAME)/$$S3_FILE && \
+		aws s3 cp $(PHP_BUILD_VERSION_FILE) $$S3_PHP_BUILD_VERSION_FILE)
+
+s3copy: $(ZIP) prep_bucket
+	. $(DIR)/../../env.sh && \
+		$(call s3_copy,$(ZIP),$(ARCHIVE))
+
+all: prep build $(ZIP) prep_bucket s3copy

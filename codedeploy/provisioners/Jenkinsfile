@@ -1,0 +1,133 @@
+#!/usr/bin/env groovy
+def APP_NAME = 'provisioners'
+def APP_CODEDEPLOY_DIR = "codedeploy/${APP_NAME}"
+
+def application_data_version_reference = [
+    "Version of the provisioner 'application-data-provisioner'",
+    "This will be downloaded from:",
+    "https://artifactory01.hobsonshighered.com/artifactory/naviance-stable/com/naviance/api/provisioner/<provisioner-name>/<version>/<provisioner-name>-<version>.jar",
+].join('\n')
+def college_core_version_reference = [
+    "Version of the provisioner 'college-core-provisioner'",
+    "This will be downloaded from:",
+    "https://artifactory01.hobsonshighered.com/artifactory/naviance-stable/com/naviance/api/provisioner/<provisioner-name>/<version>/<provisioner-name>-<version>.jar",
+].join('\n')
+def college_destination_core_version_reference = [
+    "Version of the provisioner 'college-destination-core-provisioner'",
+    "This will be downloaded from:",
+    "https://artifactory01.hobsonshighered.com/artifactory/naviance-stable/com/naviance/api/provisioner/<provisioner-name>/<version>/<provisioner-name>-<version>.jar",
+].join('\n')
+def school_core_version_reference = [
+    "Version of the provisioner 'school-core-provisioner'",
+    "This will be downloaded from:",
+    "https://artifactory01.hobsonshighered.com/artifactory/naviance-stable/com/naviance/api/provisioner/<provisioner-name>/<version>/<provisioner-name>-<version>.jar",
+].join('\n')
+
+// Credential id name for AWS S3 access to obtain Jenkins config files.
+def AWS_DEV_CREDENTIAL_ID = 'unmanaged-jenkins-terraform'
+def default_timeout_minutes = 10
+
+/*
+ * Credential id name for Artifactory dev access.
+ */
+def ARTIFACTORY_DEV_CREDENTIAL_ID = 'artifactory-naviance-dev'
+
+def wrapStep = { steps ->
+    withCredentials([
+        usernamePassword(credentialsId: AWS_DEV_CREDENTIAL_ID,
+                          passwordVariable: 'AWS_SECRET_ACCESS_KEY',
+                          usernameVariable: 'AWS_ACCESS_KEY_ID'),
+        usernamePassword(credentialsId: ARTIFACTORY_DEV_CREDENTIAL_ID,
+                          passwordVariable: 'ARTIFACTORY_DEV_PASSWORD',
+                          usernameVariable: 'ARTIFACTORY_DEV_USERNAME'),
+    ]) {
+        wrap([$class: 'AnsiColorBuildWrapper', 'colorMapName': 'XTerm', 'defaultFg': 1, 'defaultBg': 2]) {
+              // This is the current syntax for invoking a build wrapper, naming the class.
+              wrap([$class: 'TimestamperBuildWrapper']) {
+                  steps()
+              }
+        }
+    }
+}
+
+properties([
+    parameters([
+        string(name: 'application_data_version',
+                description: application_data_version_reference,
+                defaultValue: '1.6.3.93'),
+        string(name: 'college_core_version',
+                description: college_core_version_reference,
+                defaultValue: '1.6.3.93'),
+        string(name: 'college_destination_core_version',
+                description: college_destination_core_version_reference,
+                defaultValue: '1.6.3.93'),
+        string(name: 'school_core_version',
+                description: school_core_version_reference,
+                defaultValue: '1.6.3.93'),
+        string(name: 'deploy_git_branch_tag_or_commit',
+               description: 'Git Branch, Tag, or Commit reference for Cloud Deployment Scripts',
+               defaultValue: 'master')
+    ])
+])
+
+stage("Validate") {
+    def message = ""
+    if (!params.application_data_version ) {
+        message = "You have to enter a valid VERSION for the provisioner 'application-data-provisioner'."
+    }
+    if (!params.college_core_version ) {
+        message = "You have to enter a valid VERSION for the provisioner 'college-core-provisioner'."
+    }
+    if (!params.college_destination_core_version ) {
+        message = "You have to enter a valid VERSION for the provisioner 'college-destination-core-provisioner'."
+    }
+    if (!params.school_core_version ) {
+        message = "You have to enter a valid VERSION for the provisioner 'school-core-provisioner'."
+    }
+    if (message != "") {
+        echo message
+        currentBuild.result = 'UNSTABLE'
+        currentBuild.description = message
+    }
+}
+
+if (currentBuild.result != 'UNSTABLE') {
+    stage('Checkout') {
+        node {
+            timeout(time:default_timeout_minutes, unit:'MINUTES') {
+                dir('cloud-deployment-scripts') {
+                    checkout([
+                        $class: 'GitSCM',
+                        branches: [[name: '${deploy_git_branch_tag_or_commit}']],
+                        doGenerateSubmoduleConfigurations: false,
+                        extensions: [],
+                        submoduleCfg: [],
+                        userRemoteConfigs: [[
+                            credentialsId: 'github-api-hobsonsbuildserver-v2',
+                            url: 'https://github.com/naviance/cloud-deployment-scripts'
+                        ]]
+                    ])
+                    // Thanks Stack Overflow https://stackoverflow.com/a/34321368/424301
+                    sh 'sudo git clean -fdx && cp env.sh.sample env.sh'
+                }
+                stash includes: 'cloud-deployment-scripts/**', name: 'src-cloud'
+            }
+        }
+    }
+    stage('Run make build'){
+        node {
+            unstash 'src-cloud'
+            wrapStep({
+              dir("cloud-deployment-scripts/${APP_CODEDEPLOY_DIR}") {
+                sh """
+                    make clean all \
+                        application_data_version=${application_data_version} \
+                        college_core_version=${college_core_version} \
+                        college_destination_core_version=${college_destination_core_version} \
+                        school_core_version=${school_core_version}
+                """
+              }
+            })
+        }
+    }
+}

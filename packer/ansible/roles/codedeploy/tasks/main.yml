@@ -1,0 +1,5 @@
+---
+ - include: codedeploy.yml
+ - include: delete-codedeploy-agent-update.yml
+   when:
+     - ansible_distribution == "CentOS"

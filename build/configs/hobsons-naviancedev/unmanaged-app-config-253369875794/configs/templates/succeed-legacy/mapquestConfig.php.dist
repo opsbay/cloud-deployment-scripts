@@ -1,0 +1,30 @@
+<?php
+/**
+ * Naviance, Inc
+ *
+ * LICENSE
+ * This source file is the property Naviance, Inc and may not be redistributed
+ * in part or its entirty without the expressed written consent of
+ * Naviance, Inc.
+ *
+ * @category    Navianc
+ */
+
+/*
+ * configuration.php includes a file called mapquest.config.php, 
+ * so either the build system or a manual build needs to create the mapquest.config.php based on this template file.
+ */
+
+
+/* MAPQUEST CONFIG VALUES */
+
+DEFINE('MQ_CLIENT_ID','$__MQ_CLIENT_ID__');
+DEFINE('MQ_PASSWORD','$__MQ_PASSWORD__');
+DEFINE('MQ_API_KEY','$__MQ_API_KEY__');
+DEFINE('MQ_SERVER_STANDARD','$__MQ_SERVER_STANDARD__');
+DEFINE('MQ_SERVER_ROUTING','$__MQ_SERVER_ROUTING__');
+DEFINE('MQ_SERVER_GEOCODING','$__MQ_SERVER_GEOCODING__');
+DEFINE('MQ_SERVER_SPATIAL','$__MQ_SERVER_SPATIAL__');
+
+/* END MAPQUEST CONFIG VALUES */
+?>

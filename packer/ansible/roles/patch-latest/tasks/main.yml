@@ -1,0 +1,26 @@
+---
+# Ideally this is the first thing done for new AMIs
+- name: Install latest patches (RedHat family OSes)
+  yum:
+    name: "*"
+    state: latest
+  when:
+    - ansible_os_family == "RedHat"
+      
+- name: Update apt cache (Debian family OSes)
+  apt: update_cache=yes cache_valid_time=86400
+  when:
+    - ansible_os_family == "Debian"
+
+- name: Install aptitude (Debian family OSes)
+  apt: name=aptitude update_cache=yes state=latest
+  when:
+    - ansible_os_family == "Debian"
+
+# Thanks Stack Overflow https://stackoverflow.com/a/41537418/424301
+- name: Update and upgrade apt packages (Debian family OSes)
+  apt:
+    upgrade: yes
+  when:
+    - ansible_os_family == "Debian"
+

@@ -1,0 +1,7 @@
+{
+    "documentRoot": "/httpd/{{ APP_NAME }}",
+    "phpFpmSockFile": "/var/run/php-fpm/php-fpm.sock",
+    "wwwGroup": "nginx",
+    "wwwUser": "nginx",
+    "serverRoot": "/etc/nginx"
+}

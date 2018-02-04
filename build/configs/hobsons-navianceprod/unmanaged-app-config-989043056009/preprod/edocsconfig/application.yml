@@ -1,0 +1,16 @@
+server:
+  port: 8055
+
+management:
+  port: 8056
+  context_path: /management
+
+spring:
+  cloud:
+    config:
+      server:
+        prefix: /config
+        native:
+            searchLocations: /opt/edocsconfig/config
+
+maxTranscriptPages: 99999

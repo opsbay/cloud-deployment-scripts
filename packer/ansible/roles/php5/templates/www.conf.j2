@@ -1,0 +1,15 @@
+[www]
+user = {{ wwwUser }}
+group = {{ wwwGroup }}
+listen = {{ phpFpmSockFile }}
+listen.owner = {{ wwwUser }}
+listen.group = {{ wwwGroup }}
+pm = dynamic
+
+# Set pm.max_children according to projected load
+# Adjust if load test shows PHP out of memory errors
+pm.max_children = 275
+pm.start_servers = 32
+pm.min_spare_servers = 32
+pm.max_spare_servers = 64
+pm.max_requests = 2000

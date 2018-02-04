@@ -1,0 +1,64 @@
+---
+
+  # For int casting, thanks to:
+  # Reference: https://serverfault.com/questions/587727/how-to-unify-package-installation-tasks-in-ansible/649355#649355
+  #            https://github.com/naviance/cloud-deployment-scripts/blob/master/packer/ansible/roles/nodejs/tasks/main.yml
+  # For var constructing var from vars:
+  # Reference: https://stackoverflow.com/questions/29276198/ansible-how-to-construct-a-variable-from-another-variable-and-then-fetch-its-v
+  #            http://docs.ansible.com/ansible/latest/playbooks_variables.html#hey-wait-a-yaml-gotcha
+
+  - name: Creates hostname linker directory
+    tags: [ install, hostnameinstall ]
+    file:
+      path: /opt/hostname_agent/
+      state: directory
+      owner: root
+      group: root
+      mode: 0775
+
+  - name: Generate hostname linker common script
+    tags: [ install, hostnameinstall ]
+    template:
+      src: common.sh
+      dest: /opt/hostname_agent/common.sh
+      owner: root
+      group: root
+      mode: 0775
+
+  - name: Generate hostname linker script
+    tags: [ install, hostnameinstall ]
+    template:
+      src: hostname_linker.sh
+      dest: /opt/hostname_agent/hostname_linker.sh
+      owner: root
+      group: root
+      mode: 0744
+
+  - include: centos_6.yml
+    when: ansible_distribution_major_version < '7'
+
+  - include: centos_7.yml
+    when: ansible_distribution_major_version >= '7'
+
+  - name: Enable Hostname agent service at startup and start it
+    tags: [ install, hostnameinstall ]
+    service:
+      name: hostnameagentlinker
+      enabled: yes
+
+  # We do not want to start and check the status in the Ansible role
+  # as the services can't be started when executing the build. We defer
+  # that work to runtime.
+  #
+  # - name: Check if agent is linked
+  #   tags: [ install, hostnameinstall ]
+  #   become: yes
+  #   become_method: sudo
+  #   command: '/opt/hostname_agent/sbin/hostnamecli agent status 2>&1'
+  #   register: hostname_agent_status
+  #   failed_when:
+  #     - 'hostname_agent_status.rc != 0 and hostname_agent_status.rc != 2'
+  #
+  # - name: Display hostname linker status
+  #   tags: [ install, hostnameinstall ]
+  #   debug: msg="Status = {{hostname_agent_status.stdout}}"

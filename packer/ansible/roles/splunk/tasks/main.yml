@@ -1,0 +1,136 @@
+---
+  - name: Checking if splunk is installed
+    tags: install
+    stat: path=/opt/splunkforwarder
+    register: splunk_path
+
+  - name: Checking if installer already copied over
+    tags: install
+    stat: path={{splunk_working_directory}}{{splunk_uf_binary_linux}}
+    register: splunk_installer
+
+  - name: splunk is installed
+    tags: install
+    debug: msg='splunk is already installed under /opt/splunkforwarder'
+    when: splunk_path.stat.exists == true
+
+  - name: Checking if deployment server set
+    tags: install
+    stat: path=/opt/splunkforwarder/etc/system/local/deploymentclient.conf
+    register: splunkds
+
+  - name: Splunk deployment server set
+    tags: install
+    debug: msg='Splunk Deployment Server is set'
+    when: splunkds.stat.exists == true
+
+  - name: Assures {{splunk_working_directory}} exists
+    tags: install
+    file: path={{splunk_working_directory}} state=directory
+
+  - name: Push RPM package to server
+    tags: install
+    become: yes
+    become_method: sudo
+    copy: src=splunk_binaries/{{splunk_uf_binary_linux}} dest={{splunk_working_directory}}{{splunk_uf_binary_linux}}
+    when: splunk_installer.stat.exists == false
+
+  - name: Install RPM
+    tags: install
+    yum:
+      name: "{{splunk_working_directory}}{{splunk_uf_binary_linux}}"
+      state: present
+
+  - name: Start splunk   
+    tags: install   
+    become_user: splunk   
+    become_method: sudo   
+    shell: /opt/splunkforwarder/bin/splunk start --accept-license
+    when: splunk_path.stat.exists == false
+
+  - name: Enable boot-start
+    tags: install
+    become: yes
+    become_method: sudo
+    shell: /opt/splunkforwarder/bin/splunk enable boot-start -user splunk
+    when: splunk_path.stat.exists == false
+
+  - name: Splunk set deploy-poll and Restart splunkd
+    tags: install   
+    become_user: splunk   
+    become_method: sudo   
+    shell: /opt/splunkforwarder/bin/splunk set deploy-poll {{splunk_deployment_server}}:{{splunk_deployment_server_port}} -auth {{splunk_user}}:{{splunk_password}} & /opt/splunkforwarder/bin/splunk restart   
+    when: splunkds.stat.exists == false
+
+  - name: Check if DS App for deploymentclient.conf has been pulled
+    tags: install
+    become_user: splunk
+    become_method: sudo
+    stat: path=/opt/splunkforwarder/etc/apps/deploymentclient_two/local/deploymentclient.conf
+    register: splunk_ds_settings
+
+  - name: Delete deployment client settings in etc/system/local
+    tags: install
+    become_user: splunk
+    become_method: sudo
+    shell: rm -f /opt/splunkforwarder/etc/system/local/deploymentclient.conf
+
+  - name: Configure inputs
+    tags: install
+    template:
+      src:  inputs.conf.j2
+      dest: /opt/splunkforwarder/etc/system/local/inputs.conf
+
+  - name: Configure default outputs
+    tags: install
+    template:
+      src:  outputs.conf
+      dest: /opt/splunkforwarder/etc/system/local/outputs.conf
+
+  - name: Copy Splunk common script
+    tags: [ install, splunkinstall ]
+    template:
+      src: common.sh
+      dest: /opt/splunkforwarder/common.sh
+      owner: root
+      mode: 0744
+
+  - include: centos_6.yml
+    when: ansible_distribution_major_version < '7'
+
+  - include: centos_7.yml
+    when: ansible_distribution_major_version >= '7'
+
+  - name: Enable Splunk linker service at startup and start it
+    tags: [ install, splunkinstall ]
+    service:
+      name: splunkagentlinker
+      enabled: yes
+
+  - name: Enable Splunk service at startup and start it
+    tags: [ install, splunkinstall ]
+    service:
+      name: splunk
+      enabled: yes
+
+  - name: Setting Splunk ACL
+    tags: install
+    shell: |
+        /usr/bin/setfacl -m g:splunk:rx -R /var/log
+        /usr/bin/setfacl -m g::rx -m mask:rx /var/log/audit
+        /usr/bin/setfacl -m g::r -m mask:r /var/log/audit/audit.log
+
+  - name: Reset Splunk ACLs when logrotate runs
+    tags: install
+    template:        
+      src:  Splunk_ACLs.j2
+      dest: /etc/logrotate.d/Splunk_ACLs
+
+  # Thanks Stack Overflow https://stackoverflow.com/questions/28347717/how-to-create-an-empty-file-with-ansible  
+  - stat: path=/var/log/splunk-acl
+    register: p  
+
+  - name: Creating Splunk ACL log file
+    tags: install
+    action: copy content="" dest=/var/log/splunk-acl force=yes owner=splunk group=splunk mode=0600
+    when: p.stat.exists is defined and not p.stat.exists

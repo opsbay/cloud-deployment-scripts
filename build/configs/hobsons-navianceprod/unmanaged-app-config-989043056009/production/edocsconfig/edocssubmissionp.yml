@@ -1,0 +1,61 @@
+devMode: false
+
+# When true, editable PDFs are not permitted for uploads (single or MTM)
+blockingEditablePdf: true
+
+server:
+  port: 8050
+
+management:
+  port: 8052
+
+mongoConfig:
+    serverAddresses:
+     - 10.32.202.11:27017
+     - 10.32.202.12:27017
+     - 10.32.202.13:27017
+    username: edocsuser
+    password: Ed0c5App
+
+uploadRequestProcessingQueue:
+    processingThreads: 2
+
+submissionRequestProcessingQueue:
+    maxRetries: 48
+    processingThreads: 6
+
+workspaceRequestProcessingQueue:
+    processingThreads: 0
+
+service:
+  location:
+    dataconversion: https://tf-edocsdata-production.papaya.naviance.com/
+    institution:
+       api: https://tf-edocsinst-production.papaya.naviance.com/
+    ntc: https://ntc.hobsons.com:5443
+
+# change test -> outgoing
+parchmentStatusLocation:
+    archivedFileRetentionDays: 0
+    location: sftp://parchment@parchment.local.naviance.com:8022/outgoing
+    cronTriggerExpression: 0/60 * * * * ?
+
+parchmentSubmissionLocation:
+    location: sftp://navprod@sftp.parchment.com/incoming
+    checkForProblemSubmissionsWithinDays: 0
+
+# EDOCSVI-2256
+ntc:
+    polldeliveryevent:
+        cron: 0 0 0 1 1 ?
+
+fileRoot: /tmp/docs/edocs_upload/c
+workspaceFileRoot: /tmp/docs/edocs_mtu/c
+
+uploadConfig:
+    accessKey: AKIAINNRUAICAFDMXWFA
+    secretKey: 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
+    region: us-east-1
+    maxConnections: 50
+    mapFileToS3: true
+    bucketName: unmanaged-edocsAPI-989043056009

@@ -1,0 +1,11 @@
+---
+
+# Multiple OS installation adapted from https://serverfault.com/a/649355
+- name: Install NodeJS package repositories
+  script:  "{{ item }}"
+  with_first_found:
+    - "../files/{{ ansible_distribution }}-setup_{{ nodejs_major_version }}.x.sh"
+    - "../files/{{ ansible_os_family }}-setup_{{ nodejs_major_version }}.x.sh"
+
+- name: Install NodeJS packages
+  package: name=nodejs state=present

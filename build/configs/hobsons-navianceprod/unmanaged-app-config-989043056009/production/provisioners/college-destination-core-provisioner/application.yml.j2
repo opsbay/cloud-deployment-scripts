@@ -1,0 +1,31 @@
+spring:
+  application:
+    name: naviance-college-destination-bridge-application
+  profiles:
+    active: oauth2
+  datasource:
+    url: jdbc:mysql://{{ cluster_address.value }}:{{ cluster_port.value }}/{{ naviance.database }}?zeroDateTimeBehavior=convertToNull&autoReconnect=true&characterEncoding=UTF-8&characterSetResults=UTF-8
+    username: {{ naviance.user }}
+    password: {{ naviance.password }}
+    driverClassName: com.mysql.jdbc.Driver
+    testOnBorrow: true
+    testWhileIdle: true
+    validationQuery: SELECT 1
+  jpa:
+    database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
+  main:
+    web-environment: false
+
+services:
+  oauth2:
+    client:
+      accessTokenUri: https://oauth.naviance.com/oauth/token
+      clientId: prod.college.bridge
+      clientSecret: 1c6c2e26-662b-41d3-b4fc-ef5423b10fb2
+      scope: college.read college.write
+
+college:
+  core:
+    client:
+      url: https://apis-college.naviance.com
+

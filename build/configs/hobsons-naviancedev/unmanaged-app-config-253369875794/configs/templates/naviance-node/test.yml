@@ -1,0 +1,39 @@
+---
+database:
+  database: $__DB_NAME__
+  host: $__DB_HOST__
+  password: $__DB_PASS__
+  port: $__DB_PORT__
+  type: $__DB_TYPE__
+  username: $__DB_USER__
+framework:
+  showBootstrapTime: $__FRAMEWORK_SHOWBOOTSTRAPTIME__
+  bootstrapTimeout: $__FRAMEWORK_BOOTSTRAPTIMEOUT__
+logging:
+  console:
+    level: $__LOGGING_CONSOLE_LEVEL__
+    handleExceptions: $__LOGGING_CONSOLE_EXCEPTIONS__
+    json: $__LOGGING_CONSOLE_JSON__
+    colorize: $__LOGGING_CONSOLE_COLORIZE__
+  file:
+    level: $__LOGGING_FILE_LEVEL__
+    filename: $__LOGGING_FILE_NAME__
+    handleExceptions: $__LOGGING_FILE_EXCEPTIONS__
+    json: $__LOGGING_FILE_JSON__
+    maxsize: $__LOGGING_FILE_MAXSIZE__
+    maxFiles: $__LOGGING_FILE_MAXFILES__
+    colorize: $__LOGGING_FILE_COLORIZE__
+  queries: $__LOGGING_QUERIES__
+server:
+  env: $__SERVER_ENV__
+  port: $__SERVER_PORT__
+  session:
+    secret: $__SERVER_SESSION_SECRET__
+    name: $__SERVER_SESSION_NAME__
+    proxy: $__SERVER_SESSION_PROXY__
+    resave: $__SERVER_SESSION_RESAVE__
+    saveUninitialized: $__SERVER_SESSION_SAVEUNITIALIZED__
+swagger:
+  basePath: $__SWAGGER_BASEPATH__
+  host: $__SWAGGER_HOST__
+  swagger: $__SWAGGER_VERSION__

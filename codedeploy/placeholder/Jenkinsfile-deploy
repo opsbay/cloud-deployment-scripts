@@ -1,0 +1,148 @@
+#!/usr/bin/env groovy
+def APP_NAME = 'placeholder'
+def String APP_SUFFIX = '-01'
+def DEPLOYMENT_APP = 'tf-testapp'
+def upstreamProjectName = "Build-and-Deploy/${APP_NAME}-build"
+
+// Credential id name for AWS S3 access to obtain Jenkins config files.
+def AWS_DEV_CREDENTIAL_ID = 'unmanaged-jenkins-terraform'
+def AWS_PROD_CREDENTIAL_ID = 'unmanaged-jenkins-terraform-prod'
+
+def upstreamBuildNumber
+def PHP_BUILD_VERSION_FILE = 'build/etc/phpversion.txt'
+def XOR_HASH = 123456789
+
+// Thanks https://stackoverflow.com/a/4244184/424301
+Random random = new Random()
+def captchaLeft = random.nextInt(12) + 1
+def captchaRight = random.nextInt(12) + 1
+def String captchaAnswer = (captchaLeft * captchaRight)
+def captchaAnswerHash = ((captchaAnswer as Integer) ^ XOR_HASH).toString()
+
+def captchaQuestion = """Solve CAPTCHA to apply production changes or to destroy anything:
+What do you get when you multiply ${captchaLeft} by ${captchaRight}?
+"""
+
+properties([
+    parameters([
+        run(
+          name: 'NAVIANCE_CODEDEPLOY_BUILD',
+          projectName: upstreamProjectName,
+          description: 'Successful Build to Deploy',
+          filter:'SUCCESSFUL'
+        ),
+        choice(name: 'DEPLOYMENT_GROUP',
+               description: 'CodeDeploy Deployment Group to target.',
+               choices: [
+                 "qa",
+                 "staging",
+                 "preprod",
+                 "production",
+               ].join("\n")),
+        choice(name: 'DEPLOYMENT_CONFIGURATION',
+               description: 'CodeDeploy Deployment Configuration to use.',
+               choices: [
+                 "CodeDeployDefault.OneAtATime",
+                 "Naviance.QuarterAtATime",
+                 "CodeDeployDefault.HalfAtATime",
+                 "CodeDeployDefault.AllAtOnce",
+               ].join("\n")),
+        booleanParam(name: 'IgnoreApplicationStopFailure',
+                    defaultValue: false,
+                    description: "Ignore application stop failure in CodeDeploy?"),
+        stringParam(name: 'captchaGuess',
+                    defaultValue: '',
+                    description: captchaQuestion),
+        stringParam(name: 'captchaAnswerHash',
+                    defaultValue: captchaAnswerHash,
+                    description: "CAPTCHA answer hash (do not modify)"),
+    ])
+])
+
+def wrapStep = { steps, credentialsId ->
+    withCredentials([usernamePassword(credentialsId: credentialsId,
+                                      passwordVariable: 'AWS_SECRET_ACCESS_KEY',
+                                      usernameVariable: 'AWS_ACCESS_KEY_ID')]) {
+        wrap([$class: 'AnsiColorBuildWrapper', 'colorMapName': 'XTerm', 'defaultFg': 1, 'defaultBg': 2]) {
+              // This is the current syntax for invoking a build wrapper, naming the class.
+              wrap([$class: 'TimestamperBuildWrapper']) {
+                  steps()
+              }
+        }
+    }
+}
+
+stage("Validate") {
+    def message=''
+    if (params.DEPLOYMENT_GROUP ==~ /.*prod.*/) {
+        if (! params.captchaGuess) {
+            message += "No CAPTCHA guess detected. "
+        } else {
+            def Integer guess = params.captchaGuess as Integer
+            def Integer answer = (params.captchaAnswerHash as Integer) ^ XOR_HASH
+            def guessHash = (guess ^ XOR_HASH).toString()
+            if (guess != answer) {
+                message += "CAPTCHA answer was wrong. guess: ${guess} answer: ${answer}"
+            }
+        }
+    } 
+    if (message != '') {
+        currentBuild.description = message
+        currentBuild.result = 'UNSTABLE'
+    }
+    upstreamBuildNumber = "${env.NAVIANCE_CODEDEPLOY_BUILD}".split('/').last()
+    currentBuild.displayName = "#${BUILD_NUMBER}: deploy #${upstreamBuildNumber}→${DEPLOYMENT_APP}…/${DEPLOYMENT_GROUP}"
+}
+
+if (currentBuild.result != 'UNSTABLE') {
+    stage('Checkout') {
+        node {
+            checkout scm
+            sh 'git clean -fdx && cp env.sh.sample env.sh'
+
+            // Thanks Stack Overflow https://stackoverflow.com/a/34321368/424301
+            stash includes: "bin/**,codedeploy/${APP_NAME}/**", name: 'src-cloud'
+        }
+    }
+    stage('Create Deployment'){
+        node {
+            def CREDENTIALS = ''
+            if (DEPLOYMENT_GROUP ==~ /.*prod.*/) {
+                CREDENTIALS = AWS_PROD_CREDENTIAL_ID
+            } else {
+                CREDENTIALS = AWS_DEV_CREDENTIAL_ID
+            }   
+            unstash 'src-cloud'    
+            withEnv([
+                "APP_NAME=${APP_NAME}",
+                "APP_SUFFIX=${APP_SUFFIX}",
+                "DEPLOYMENT_APP=${DEPLOYMENT_APP}",
+                ]) {
+                try {
+                    wrapStep({
+                        sh '''bin/create-deployment.sh \
+                              "${NAVIANCE_CODEDEPLOY_BUILD}" \
+                              "${APP_NAME}" \
+                              "${APP_SUFFIX}" \
+                              "${DEPLOYMENT_APP}" \
+                              "${DEPLOYMENT_GROUP}" \
+                              "${DEPLOYMENT_CONFIGURATION}" \
+                              "" \
+                              "$IgnoreApplicationStopFailure"
+                           '''
+                    } , CREDENTIALS)
+                } finally {
+                    // Thanks Stack Overflow https://stackoverflow.com/a/38539009/424301
+                    def deploymentAppName = "${DEPLOYMENT_APP}"
+                    try {
+                        def phpVersion = readFile(PHP_BUILD_VERSION_FILE).trim()
+                        deploymentAppName = "${deploymentAppName}-${phpVersion}"
+                    } catch (err) { 
+                        echo "Hmm, had trouble parsing phpVersion. Err=${err}"
+                    }
+                    currentBuild.displayName = "#${BUILD_NUMBER}: deploy #${upstreamBuildNumber}→${deploymentAppName}/${DEPLOYMENT_GROUP}"
+                }
+            }
+        }
+    }
+}

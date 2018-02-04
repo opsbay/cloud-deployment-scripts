@@ -1,0 +1,14 @@
+---
+- include: setup-CentOS.yml
+  vars:
+    wwwUser: 'nginx'
+    wwwGroup: 'nginx'
+    phpFpmSockFile: '/var/run/php-fpm/php-fpm.sock'
+  when: ansible_distribution == 'CentOS'
+
+- include: setup-Ubuntu.yml
+  vars:
+    wwwUser: 'www-data'
+    wwwGroup: 'www-data'
+    phpFpmSockFile: '/run/php/php5.6-fpm.sock'
+  when: ansible_distribution == 'Ubuntu'

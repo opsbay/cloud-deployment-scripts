@@ -1,0 +1,3 @@
+# Configuration that has the info for linking the Nessus Agent
+
+NESSUS_AGENT_KEY=0cf791b5f5e39b54d6b93167738dce6934d246af98bfbaffabeb803cdf44c020

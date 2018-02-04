@@ -1,0 +1,45 @@
+server:
+  port: 6060
+
+error:
+  whitelabel:
+    enabled: false
+
+spring:
+  datasource:
+    url: jdbc:mysql://{{ cluster_address.value }}/{{ naviance.database }}?zeroDateTimeBehavior=convertToNull
+    username: {{ naviance.user }}
+    password: {{ naviance.password }}
+    driver-class-name: com.mysql.jdbc.Driver
+    test-on-borrow: false
+    test-while-idle: false
+    validation-query: SELECT 1
+    initial-size: 3
+    max-active: 10
+    max-idle: 4
+    min-idle: 0
+  jpa:
+    database: MYSQL
+    show-sql: false
+    generate-ddl: false
+  profiles:
+    active: swagger
+
+oauth:
+  clients:
+    - client1/5hihl5oKRarPG92oIdfrcqfmhaQ=
+    - lighthouse/PohpgMu4TdkLlxHoqCBpf7Mc5xY=
+  secret: 30d84620658254929f8a426174c22ce2
+
+info:
+  app:
+    name: StudentService
+    description: Student Data Service
+
+management:
+  port: 6064
+  context_path: /management
+
+logging:
+  level.com.naviance: INFO
+  file: /opt/naviance/learnapi/logs/StudentService.log

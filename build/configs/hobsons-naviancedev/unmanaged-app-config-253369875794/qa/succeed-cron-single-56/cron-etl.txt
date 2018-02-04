@@ -1,0 +1,2 @@
+30 23 * * * cd /home/etl/naviance-lausd-etl/; source venv/bin/activate; python ./proxy_lausd_custom.py >> log/proxy_lausd_custom.log; deactivate
+00 17 * * * /bin/find /home/etl/naviance-lausd-etl/archive/* -mtime +14 -not -path "*README.md" -exec rm {} \;

@@ -1,0 +1,12 @@
+module mongod 1.0;
+
+require {
+    type locale_t;
+    type mongod_t;
+    type ld_so_cache_t;
+    class file execute;
+}
+
+#============= mongod_t ==============
+allow mongod_t ld_so_cache_t:file execute;
+allow mongod_t locale_t:file execute;

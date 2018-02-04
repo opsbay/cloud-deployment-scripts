@@ -1,0 +1,271 @@
+#!/usr/bin/env groovy
+// Credential id name for AWS S3 access to obtain Jenkins config files.
+def S3_CREDENTIAL_ID = 'jenkins-pipeline-s3'
+
+
+// Thanks https://stackoverflow.com/a/4244184/424301
+Random random = new Random()
+def captchaLeft = random.nextInt(12) + 1
+def captchaRight = random.nextInt(12) + 1
+def String captchaAnswer = (captchaLeft * captchaRight)
+def captchaHash = 123456789
+def captchaAnswerHash = ((captchaAnswer as Integer) ^ captchaHash).toString()
+
+def captchaQuestion = """Solve CAPTCHA to apply production changes or to destroy anything:
+What do you get when you multiply ${captchaLeft} by ${captchaRight}?
+"""
+
+def domains = [
+    'qa' : 'mango.naviance.com',
+    'staging' : 'mango.naviance.com',
+    'preprod' : 'papaya.naviance.com',
+    'production' : 'papaya.naviance.com',
+]
+
+// TODO: use a fancy map operation to construct this from the domain map
+// maybe:
+// def apiHosts = domain.keySet().collectEntries {
+//   [ (it) : "https://tf-blue-ridge-api-${it}.${domain[it]}" ]
+// }
+// Or not because declarative is simple.
+def apiHosts = [
+    'qa' : 'https://tf-blue-ridge-api-qa.mango.naviance.com',
+    'staging' : 'https://tf-blue-ridge-api-staging.mango.naviance.com',
+    'preprod' : 'https://tf-blue-ridge-api-preprod.papaya.naviance.com',
+    'production' : 'https://tf-blue-ridge-api-production.papaya.naviance.com',
+]
+
+def certificates = [
+    'qa' : 'arn:aws:acm:us-east-1:253369875794:certificate/a9899d2d-5885-4103-b5af-c36530c5fbf4',
+    'staging' : 'arn:aws:acm:us-east-1:253369875794:certificate/a9899d2d-5885-4103-b5af-c36530c5fbf4',
+    'preprod' : 'arn:aws:acm:us-east-1:989043056009:certificate/9489edd4-0063-45dc-837f-4df87ecf45b4',
+    'production' : 'arn:aws:acm:us-east-1:989043056009:certificate/9489edd4-0063-45dc-837f-4df87ecf45b4',
+]
+
+def fetch_max_results = [
+    'qa' : '100',
+    'staging' : '100',
+    'preprod' : '100',
+    'production' : '100',
+]
+
+def google_map_api_keys = [
+    'qa' : 'AIzaSyBg5gkvUVAG9oLXboavgTaw9jO-T5yeCDY',
+    'staging' : 'AIzaSyBg5gkvUVAG9oLXboavgTaw9jO-T5yeCDY',
+    'preprod' : 'AIzaSyBg5gkvUVAG9oLXboavgTaw9jO-T5yeCDY',
+    'production' : 'AIzaSyBg5gkvUVAG9oLXboavgTaw9jO-T5yeCDY',
+]
+
+def gtm_codes = [
+    'qa' : 'GTM-NPKP2M',
+    'staging' : 'GTM-NPKP2M',
+    'preprod' : 'GTM-NPKP2M',
+    'production' : 'GTM-NPKP2M',
+]
+
+def hubs_app_urls = [
+    'qa' : 'https://qa-fc-hubs-app.naviance.com',
+    'staging' : 'https://qa-fc-hubs-app.naviance.com',
+    'preprod' : 'https://qa-fc-hubs-app.naviance.com',
+    'production' : 'https://fc-hubs-app.naviance.com',
+]
+
+properties([
+    parameters([
+        choice(name: 'targetEnvironment',
+               description: 'Environment to target',
+               choices: [
+                 "qa",
+                 "staging",
+                 "preprod",
+                 "production",
+               ].join("\n")),
+        string(name: 'git_branch_tag_or_commit',
+               description: 'Git Branch, Tag, or Commit reference for Blue Ridge API',
+               defaultValue: 'master'),
+        string(name: 'deploy_git_branch_tag_or_commit',
+               description: 'Git Branch, Tag, or Commit reference for Cloud Deployment Scripts',
+               defaultValue: 'master'),
+        booleanParam(name: 'use_ci_build',
+                     description: ['Please click me for every deployment to QA and for Staging/Prod optional as of now',
+                                   'This will include `data-test-id` properties and form class names as in development.',
+                                   'See [NAWS-497](https://jira.hobsons.com/browse/NAWS-497) for more information.',
+                                  ].join('\n'),
+                     defaultValue: false),
+        stringParam(name: 'captchaGuess',
+                    defaultValue: '',
+                    description: captchaQuestion),
+        stringParam(name: 'captchaAnswerHash',
+                    defaultValue: captchaAnswerHash,
+                    description: "CAPTCHA answer hash (do not modify)"),
+    ])
+])
+
+def domain = "${domains[params.targetEnvironment]}"
+def target = "family-connection-ui-${targetEnvironment}.${domain}"
+
+currentBuild.displayName = "#${BUILD_NUMBER}: ${git_branch_tag_or_commit} -> ${params.targetEnvironment}"
+currentBuild.description = """Deploying Family Connection UI to [https://$target](https://${target})
+Using API host at [${apiHosts[params.targetEnvironment]}](${apiHosts[params.targetEnvironment]})
+With certificate ${certificates[params.targetEnvironment]}"""
+
+def awsCredentialsId = (params.targetEnvironment ==~ /.*prod.*/) ?  'unmanaged-jenkins-terraform-prod' : 'unmanaged-jenkins-terraform'
+
+def wrapStep = { steps ->
+    withCredentials([usernamePassword(credentialsId: awsCredentialsId,
+                                      passwordVariable: 'AWS_SECRET_ACCESS_KEY',
+                                      usernameVariable: 'AWS_ACCESS_KEY_ID')]) {
+        wrap([$class: 'AnsiColorBuildWrapper', 'colorMapName': 'XTerm', 'defaultFg': 1, 'defaultBg': 2]) {
+              // This is the current syntax for invoking a build wrapper, naming the class.
+              wrap([$class: 'TimestamperBuildWrapper']) {
+                  steps()
+              }
+        }
+    }
+}
+
+def runStages = { mainBuild ->
+    stage("Validate") {
+        def message = ""
+        if (params.targetEnvironment ==~ /.*prod.*/) {
+            switch ("${domain}") {
+                case 'papaya.naviance.com':
+                    echo "domain ${domain} is OK for ${params.targetEnvironment}"
+                    break
+                default:
+                    message +="Invalid domain selected for ${params.targetEnvironment}"
+                    break
+            }
+            if (! params.captchaGuess) {
+                message += "No CAPTCHA guess detected. "
+            } else {
+                def Integer guess = params.captchaGuess as Integer
+                def Integer answer = (params.captchaAnswerHash as Integer) ^ captchaHash
+                def guessHash = (guess ^ captchaHash).toString()
+                if (guess != answer) {
+                    message += "CAPTCHA answer was wrong. guess: ${guess} answer: ${answer} guessHash: ${guessHash} answerHash: ${params.captchaAnswerHash}"
+                }
+            }
+            if ("${params.git_branch_tag_or_commit}" != "master") {
+              message += "You may only deploy to ${params.targetEnvironment} from master. "
+            }
+        } else {
+            switch ("${domain}") {
+                case 'mango.naviance.com':
+                    echo "domain ${domain} is OK for ${params.targetEnvironment}"
+                    break
+                default:
+                    message += "Invalid ${domain} selected for ${params.targetEnvironment}"
+                    break
+            }
+        }
+        if (message != "") {
+            echo message
+            currentBuild.result = 'UNSTABLE'
+            currentBuild.description = message
+        }
+    }
+    if (currentBuild.result != 'UNSTABLE') {
+        mainBuild()
+    }
+}
+
+def mainBuild =  {
+    stage('Checkout') {
+        parallel cloud: {
+            node {
+                dir('cloud-deployment-scripts') {
+                    checkout([
+                        $class: 'GitSCM',
+                        branches: [[name: '${deploy_git_branch_tag_or_commit}']],
+                        doGenerateSubmoduleConfigurations: false,
+                        submoduleCfg: [],
+                        userRemoteConfigs: [[
+                            credentialsId: 'github-api-hobsonsbuildserver-v2',
+                            url: 'https://github.com/naviance/cloud-deployment-scripts'
+                        ]]
+                    ])
+                    // Thanks Stack Overflow https://stackoverflow.com/a/34321368/424301
+                    sh 'git clean -fdx'
+                }
+                stash includes: 'cloud-deployment-scripts/**', name: 'src-cloud'
+            }
+        }, app: {
+            node {
+                dir('family-connection-ui') {
+                    checkout([
+                        $class: 'GitSCM',
+                        branches: [[name: '${git_branch_tag_or_commit}']],
+                        doGenerateSubmoduleConfigurations: false,
+                        submoduleCfg: [],
+                        userRemoteConfigs: [[
+                            credentialsId: 'github-api-hobsonsbuildserver-v2',
+                            url: 'https://github.com/naviance/family-connection-ui'
+                        ]]
+                    ])
+                    sh 'sudo git clean -fdx'
+                    withCredentials([usernamePassword(credentialsId: S3_CREDENTIAL_ID,
+                                                      passwordVariable: 'AWS_SECRET_ACCESS_KEY',
+                                                      usernameVariable: 'AWS_ACCESS_KEY_ID')])  {
+                        sh '''
+                           set -x
+                           if ! which aws > /dev/null; then
+                                if ! which pip > /dev/null; then
+                                    sudo yum -q -y install python-pip
+                                fi
+                                sudo pip install awscli
+                            fi
+                            # This bucket is only in us-east-1 so specify that
+                            aws s3 --region us-east-1 cp s3://hobsons-k12-config/jenkins/.npmrc-naviance-dev .npmrc
+                           '''
+                    }
+                    sh "ls -lad .npmrc"
+                    def revision = sh (
+                        script: 'git describe --always --tags --long',
+                        returnStdout: true
+                    ).trim()
+                    currentBuild.description = """${currentBuild.description}
+From git reference ${revision}"""
+                }
+                stash includes: 'family-connection-ui/**', name: 'src-app'
+            }
+        }
+    }
+    stage('Build and Deploy'){
+        node {
+            unstash 'src-cloud'
+            unstash 'src-app'
+            wrapStep({
+                sh """#!/usr/bin/env bash
+                    set -euo pipefail
+                    set -x
+                    sudo chown -Rh "$USER:$USER" .
+                    . cloud-deployment-scripts/bin/common.sh
+                    cp cloud-deployment-scripts/env.sh.sample cloud-deployment-scripts/env.sh
+                    ensure_awscli
+                    set +e
+                    if ! rpm -q mailcap; then
+                        echo "Installing mailcap to get /etc/mime.types"
+                        echo "(otherwise the aws cli uploads svg files as binary/octet-stream instead of svg+xml)"
+                        sudo yum install -q -y mailcap
+                    fi
+                    set -e
+                    grep -i svg /etc/mime.types
+                    cloud-deployment-scripts/s3/family-connection-ui/deploy.sh \
+                        "${target}" \
+                        "${apiHosts[params.targetEnvironment]}" \
+                        false \
+                        false \
+                        "${params.use_ci_build}" \
+                        "${certificates[params.targetEnvironment]}" \
+                        "${fetch_max_results[params.targetEnvironment]}" \
+                        "${google_map_api_keys[params.targetEnvironment]}" \
+                        "${gtm_codes[params.targetEnvironment]}" \
+                        "${hubs_app_urls[params.targetEnvironment]}"
+                """
+            })
+        }
+    }
+}
+
+runStages(mainBuild)

@@ -1,0 +1,300 @@
+parameters:
+    # Basic system config parameters
+    fc_server_name: $__FC_SERVER_NAME__
+    client_path: $__CLIENT_PATH__
+    # environment is dev, qa, staging, or production
+    # DEPRECATED: Do not use in new code. Intent is to remove this param.
+    naviance_environment: $__NAV_ENV__
+
+    # System emails
+    subscriptions.billing.mail.from: $__EMAIL_BILLING_FROM__
+    subscriptions.renewals.mail.from: $__EMAIL_RENEWALS_FROM__
+    subscriptions.renewals.mail.to: $__EMAIL_RENEWALS_TO__
+    subscriptions.sales.mail.to: $__EMAIL_SALES_TO__
+
+    # Default primary database
+    database_driver:   $__DB_PRI_DRIVER__
+    database_host:     $__DB_PRI_HOST__
+    database_port:     $__DB_PRI_PORT__
+    database_name:     $__DB_PRI_NAME__
+    database_user:     $__DB_PRI_USER__
+    database_password: $__DB_PRI_PASS__
+
+    # Default secondary databases
+    database.read1.driver:   $__DB_SEC_READ_DRIVER_1__
+    database.read1.host:     $__DB_SEC_READ_HOST_1__
+    database.read1.port:     $__DB_SEC_READ_PORT_1__
+    database.read1.name:     $__DB_SEC_READ_NAME_1__
+    database.read1.user:     $__DB_SEC_READ_USER_1__
+    database.read1.password: $__DB_SEC_READ_PASS_1__
+
+    database.read2.driver:   $__DB_SEC_READ_DRIVER_2__
+    database.read2.host:     $__DB_SEC_READ_HOST_2__
+    database.read2.port:     $__DB_SEC_READ_PORT_2__
+    database.read2.name:     $__DB_SEC_READ_NAME_2__
+    database.read2.user:     $__DB_SEC_READ_NAME_2__
+    database.read2.password: $__DB_SEC_READ_PASS_2__
+
+    mailer_transport:  $__MTA_TYPE__
+    mailer_host:       $__MTA_HOST__
+    mailer_user:       $__MTA_USER__
+    mailer_password:   $__MTA_PASS__
+
+    locale:            $__LOCALE__
+    secret:            $__SECRET__
+
+    edocs_legacy_read_database_driver: $__DB_LEG_READ_DRIVER__
+    edocs_legacy_read_database_host: $__DB_LEG_READ_HOST__
+    edocs_legacy_read_database_port: $__DB_LEG_READ_PORT__
+    edocs_legacy_read_database_name: $__DB_LEG_READ_NAME__
+    edocs_legacy_read_database_user: $__DB_LEG_READ_USER__
+    edocs_legacy_read_database_password: $__DB_LEG_READ_PASS__
+
+    edocs_legacy_write_database_driver: $__DB_LEG_WRITE_DRIVER__
+    edocs_legacy_write_database_host: $__DB_LEG_WRITE_HOST__
+    edocs_legacy_write_database_port: $__DB_LEG_WRITE_PORT__
+    edocs_legacy_write_database_name: $__DB_LEG_WRITE_NAME__
+    edocs_legacy_write_database_user: $__DB_LEG_WRITE_USER__
+    edocs_legacy_write_database_password: $__DB_LEG_WRITE_PASS__
+
+    njq_database_driver: $__DB_NJQ_DRIVER__
+    njq_database_host: $__DB_NJQ_HOST__
+    njq_database_port: $__DB_NJQ_PORT__
+    njq_database_name: $__DB_NJQ_NAME__
+    njq_database_user: $__DB_NJQ_USER__
+    njq_database_password: $__DB_NJQ_PASS__
+
+    crazy_egg.enabled: $__CRAZY_EGG__
+    live_reload.enabled: $__LIVE_RELOAD__
+    google_analytics.enabled: $__GOOGLE_ANALYTICS__
+    google_analytics.code: '$__GOOGLE_ANALYTICS_CODE__'
+
+    mtu.processing.api.root.uri: $__MTU_URI__
+
+    edocs_upload_api_root_uri: $__EDOCS_UPLOAD_URI__
+    edocs_institution_root_uri: $__EDOCS_INST_URI__
+    #time out for polling for upload events in seconds
+    edocs_upload_api_upload_request_timeout: $__EDOCS_TIMEOUT_UPLOAD__
+
+    succeed.main.family.connection.token.secret.key: $__FC_SECRET__
+
+    edocs_legacy_memcache_servers: [{host:'$__EDOCS_LEG_MEMCACHE_SERVER_URI__', port:$__EDOCS_LEG_MEMCACHE_SERVER_PORT__}]
+    feature_toggle_memcache_servers: [{host:'$__EDOCS_TOGGLE_MEMCACHE_SERVER_URI__', port:$__EDOCS_TOGGLE_MEMCACHE_SERVER_PORT__}]
+
+    # Mapquest config
+    mapquest.api.key: $__MAPQUEST_KEY__
+    mapquest.geocoding.api.url: $__MAPQUEST_GEOCODE_URI__
+
+    # Cache timeouts in seconds
+    edocs_legacy_memcache_short_ttl: $__EDOCS_LEG_TTL_SHORT__
+    edocs_legacy_memcache_medium_ttl: $__EDOCS_LEG_TTL_MEDIUM__
+    edocs_legacy_memcache_long_ttl: $__EDOCS_LEG_TTL_LONG__
+
+    edocs_tools_api_enabled: $__EDOCS_TOOLS_API__
+    edocs_tools_api_key: $__EDOCS_TOOLS_API_KEY__
+
+    # Turn on/off features
+    succeed.edocs.feature.mtu.enabled: $__SUCCEED_EDOCS_MTU__
+    succeed.edocs.feature.catools.enabled: $__SUCCEED_EDOCS_CATOOLS__
+
+    succeed_legacy.web.base_path: "$__SUCCEED_WEB_BASEPATH__"
+    succeed_legacy.web.base_url: $__SUCCEED_WEB_BASEURL__
+
+    naviance.feature.toggle.base.url: $__NAVIANCE_FEATURE_TOG_URI__
+
+    # Naviance Oauth
+    naviance.oauth.url: $__NAVIANCE_OAUTH__URI__
+    naviance.oauth.authorize.uri: $__NAVIANCE_OAUTH_AUTH_URI__
+    naviance.oauth.checktoken.uri: $__NAVIANCE_OAUTH_CHECKTOCKEN_URI__
+    naviance.oauth.client_id: $__NAVIANCE_OAUTH_CLIENT_ID__
+    naviance.oauth.default.scope: $__NAVIANCE_OAUTH_DEFAULT_SCOPE__
+    naviance.oauth.cookie: $__NAVIANCE_OAUTH_COOKIE__
+
+    # College Search - has standard params for write, separate for read
+    college_search.database.read.host: $__CS_DB_HOST__
+    college_search.database.read.user: $__CS_DB_USER__
+    college_search.database.read.password: $__CS_DB_PASS__
+    college_search.database.read.name: $__CS_DB_NAME__
+
+    # Corporate LDAP
+    iam.ldap.server_1.host: $__AIM_LDAP1_HOST__
+    iam.ldap.server_1.base_dn: $__IAM_LDAP1_BASEDN__
+    iam.ldap.server_1.account_canonical_form: $__IAM_LDAP1_AC_CANONICAL__
+    iam.ldap.server_1.account_domain_name: $__IAM_LDAP1_AC_DOMAIN__
+    iam.ldap.server_1.account_domain_name_short: $__IAM_LDAP1_AC_DOMAIN_SHORT__
+
+    iam.ldap.server_2.host: $__IAM_LDAP2_HOST__
+    iam.ldap.server_2.base_dn: $__IAM_LDAP2_BASEDN__
+    iam.ldap.server_2.account_canonical_form: $__IAM_LDAP2_AC_CANONICAL__
+    iam.ldap.server_2.account_domain_name: $__IAM_LDAP2_AC_DOMAIN__
+    iam.ldap.server_2.account_domain_name_short: $__IAM_LDAP2_AC_DOMAIN_SHORT__
+
+    # Delegated Auth Logging, Log levels are Zend_Log priorities
+    # Log Levels: 0=Emergency, 1=Alert, 2=Critical, 3=Error, 4=Warning, 5=Notice, 6=Informational, 7=Debug
+    iam.delegated_auth.logs.mail.to: $__IAM_DELAUTH_LOGS_MAILTO__
+    iam.delegated_auth.logs.mail.from: $__IAM_DELAUTH_LOGS_MAILFROM__
+    iam.delegated_auth.logs.mail.subject: $__IAM_DELAUTH_LOGS_SUBJECT__
+    iam.delegated_auth.logs.level: $__IAM_DELAUTH_LOGS_LEVEL__
+
+    # Naviance Web Application SSO
+    iam.sso.access_key: $__IAM_SSO_ACCESS_KEY__
+    iam.sso.shared_secret: $__IAM_SSO_SECRET__
+    iam.sso.staff_auth_endpoint: $__IAM_SSO_STAFF_AUTH_URI__
+    iam.sso.student_auth_endpoint: $__IAM_SSO_STUDENT_AUTH_URI__
+    iam.sso.staff_error_endpoint: $__IAM_SSO_STAFF_ERROR_URI__
+    iam.sso.student_error_endpoint: $__IAM_SSO_STUDENT_ERROR_URI__
+
+    # Naviance IAM Global Auth
+    iam.auth.service.base_url: $__IAM_AUTH_BASEURI__
+    iam.auth.service.timeout: $__IAM_AUTH_TIMEOUT__
+    iam.auth.service.connect_timeout: $__IAM_AUTH_CONNECT_TIMEOUT__
+    iam.auth.client.oauth.client_id: $__IAM_AUTH_CLIENT__OAUTH_CLIENTID__
+    iam.auth.client.oauth.client_secret: $__IAM_AUTH_CLIENT_OAUTH_SECRET__
+    iam.auth.client.oauth.token_uri: $__IAM_AUTH_CLIENT_OAUTH_TOKEN_URI__
+    iam.auth.client.oauth.scope: '$__IAM_AUTH_CLIENT_OAUTH_SCOPE__'
+    iam.auth.cookie_name: $__IAM_AUTH_COOKIE_NAME__
+    iam.auth.cookie_domain: $__IAM_AUTH_COOKIE_DOMAIN__
+    iam.auth.mocks_enabled: $__IAM_AUTH_MOCKS__
+    iam.auth.default_dashboard_page: $__IAM_AUTH_DEFAULT_DASHBOARD__
+
+    # Naviance Core API
+    naviance.core.api.student.service.base_url: $__NAV_COREAPI__SS_BASEURI__
+    naviance.core.api.oauth.client_id: $__NAV_COREAPI__OAUTH_CLIENTID__
+    naviance.core.api.oauth.client_secret: $__NAV_COREAPI__OAUTH_CLIENT_SECRET__
+    naviance.core.api.oauth.token_uri: $__NAV_COREAPI__OAUTH_TOKEN_URI__
+    naviance.core.api.oauth.scope: $__NAV_COREAPI__OAUTH_SCOPE__
+
+    # NSC FTPS for Alumni Tracker (National Student Clearinghouse)
+    nsc.host: $__NSC_HOST__
+    nsc.username: $__NSC_USER__
+    nsc.password: $__NSC_PASS__
+
+    # CCR Curriculum
+    curriculum.sso_key: $__CCR_SSO_KEY__
+    curriculum.sso_url: $__CCR_SSO_URL__
+    curriculum.roster.ui: $__CCR_ROSTER_UI__
+    curriculum.activation_date: $__CCR_ACTIVATION_DATE__
+    curriculum.aws_sqs.transmit_url: $__CCR_AWS_SQS_TRANSMIT_URL__
+    curriculum.aws_sqs.receive_url: $__CCR_AWS_SQS_RECEIVE_URL__
+    curriculum.aws_sqs.key: $__CCR_AWS_SQS_KEY__
+    curriculum.aws_sqs.secret: $__CCR_AWS_SQS_SECRET__
+    curriculum.aws_sqs.polling_interval: $__CCR_AWS_SQS_POLLING_INTERVAL__
+    curriculum.aws_sqs.wait_time: $__CCR_AWS_SQS_WAIT_TIME__
+    curriculum.aws_sqs.max_messages: $__CCR_AWS_SQS_MAX_MSGS__
+    curriculum.aws_sqs.region: $__CCR_AWS_SQS_REGION__
+
+    # Elementary Roster
+    elementary.roster.ui: $__ELEMENTARY_ROSTER_UI__
+
+    # Naviance Network (Lithium SSO)
+    naviance_network.sso_key: $__NAV_NETWORK_SSO_KEY__
+    naviance_network.environment: $__NAV_NETWORK_ENV__
+    naviance_network.cname: '$__NAV_NETWORK_CNAME__'
+
+    # Test Prep
+    test_prep.session_encryption_key: $__TEST_PREP_SESSION_ENC_KEY__
+    test_prep.session_lifetime: $__TEST_PREP_SESSION_LIFETIME__
+    test_prep.cookie_name: $__TEST_PREP_COOKIE_NAME__
+    test_prep.cookie_domain: $__TEST_PREP_COOKIE_DOMAIN__
+    test_prep.cookie_lifetime: $__TEST_PREP_COOKIE_LIFETIME__
+    test_prep.sso_url: $__TEST_PREP_SSO_URL__
+    test_prep.subscription_url: $__TEST_PREP_SUBSCRIPTION_URL__
+    test_prep.subscription_access_token: $__TEST_PREP_SUBSCRIPTION_ACCESS_TOKEN__
+    test_prep.oauth_scope: $__TEST_PREP_OAUTH_SCOPE__
+    test_prep.roster.ui: $__TEST_PREP_ROSTER_UI__
+
+    # Salesforce API
+    salesforce.api.user: $__SALESFORCE_API_USER__
+    salesforce.api.key: $__SALESFORCE_API_KEY__
+    salesforce.api.wsdl: '$__SALESFORCE_API_WDSL__'
+    salesforce.api.user_id: $__SALESFORCE_API_USERID__
+    salesforce.web_to_case_form.url: '$__SALESFORCE_WEB2CASEFORM_URL__'
+    salesforce.web_to_case_form.org_id: $__SALESFORCE_WEB2CASEFORM_ORG_ID__
+    salesforce.owner.cache.ttl: $__SALESFORCE_OWNER_CACHE_TTL__
+
+    # Powerschool
+    powerschool.client.url: $__POWERSCHOOL_CLIENT_URI__
+    powerschool.client.secret: $__POWERSCHOOL_CLIENT_SECRET__
+    powerschool.client.timeout: $__POWERSCHOOL_CLIENT_TIMEOUT__
+    powerschool.client.connect_timeout: $__POWERSCHOOL_CLIENT_CONNECT_TIMEOUT__
+    powerschool.log.enable: $__POWERSCHOOL_LOG_ENABLE__
+    powerschool.log.name: $__POWERSCHOOL_LOG_NAME__
+    powerschool.log.path: $__POWERSCHOOL_LOG_PATH__
+    powerschool.log.level: $__POWERSCHOOL_LOG_LEVEL__
+
+    # Product Links
+    product_links:
+      -
+        product_id: $__PRODLINKS_1_ID__
+        product_type: $__PRODLINKS_1_TYPE__
+        href: $__PRODLINKS_1_HREF__
+      -
+        product_id: $__PRODLINKS_2_ID__
+        product_type: $__PRODLINKS_2_TYPE__
+        href: $__PRODLINKS_2_HREF__
+      -
+        product_id: $__PRODLINKS_3_ID__
+        product_type: $__PRODLINKS_3_TYPE__
+        href: $__PRODLINKS_3_HREF__
+
+    # Community
+    community.landing.url: '$__COMMUNITY_LANDING_URL__'
+
+    # Naviance Clever Match
+    clever.match_ui.url: '$__NAV_CLEVERMATCH_URI__'
+
+    # Reporting Framework
+    reporting_framework.database.data.host: $__REPORTING_DB_HOST__
+    reporting_framework.database.data.user: $__REPORTING_DB_USER__
+    reporting_framework.database.data.password: $__REPORTING_DB_PASSWORD__
+    reporting_framework.database.data.name: $__REPORTING_DB_NAME__
+    reporting_framework.url: $__REPORTING_URL__
+    reporting_framework.data: $__REPORTING_DATA__
+    reporting_framework.key: $__REPORTING_KEY__
+
+    # Assessments
+    # For the database, prod and staging connect to an external db.
+    # For test on dev, the hes_dev db needs to be created just to test the connection...db can be empty
+    personality_type_1.sunset_after_year: $__PERSONALITY_1_SUNSET_AFTER_YEAR__
+    personality_type_2.client_id: $__PERSONALITY_2_CLIENT_ID__
+    learning_style_2.client_id: $__LEARNING_STYLE_2_CLIENT_ID__
+    mi_advantage_2.client_id: $__MI_ADV2_CLIENT_ID__
+    mi_advantage_2.database.adapter: $__MI_ADV2_DB_ADAPTER__
+    mi_advantage_2.database.read.host: $__MI_ADV2_DB_READ_HOST__
+    mi_advantage_2.database.read.user: $__MI_ADV2_DB_READ_USER__
+    mi_advantage_2.database.read.password: $__MI_ADV2_DB_READ_PASS__
+    mi_advantage_2.database.read.name: $__MI_ADV2_DB_READ_NAME__
+
+    # StrengthsExplorer
+    strengths_explorer.client_id: $__STRENGTHS_EXPLORER_CLIENT_ID__
+
+    # Marketing Content
+    marketing_content.signin: $__MARKETING_SIGNIN__
+    marketing_content.signout: $__MARKETING_SIGNOUT__
+    marketing_content.banner.enabled: $__MARKETING_BANNER__
+    marketing_content.banner.url: $__MARKETING_BANNER_URL__
+
+    # BIRST config
+    birst.url: '$__BIRST_URL__'
+    birst.space.name: $__BIRST_SPACE_NAME__
+    birst.space.id: $__BIRST_SPACE_ID__
+    birst.sso.password: $__BIRST_SSO_PASSWORD__
+    birst.sso.tokengenerator.endpoint: $__BIRST_SSO_TOKENGEN_ENDPOINT__
+    birst.sso.iframe.endpoint: $__BIRST_SSO_IFRAME_ENDPOINT__
+    birst.admin_user.login: $__BIRST_ADMIN_LOGIN__
+    birst.admin_user.password: $__BIRST_ADMIN_PASS__
+
+    # Beta Dashboard
+    beta_dashboard.feedback_link: "$__BETA_DASHBOARD_FEEDBACK_LINK__"
+succeed_legacy:
+    edocs_common_app_service_enabled: $__SUCCEED_LEG_EDOCS_COMMON_APPS__
+
+succeed_data_import:
+    roster:
+        oauth:
+            scopes: $__SUCCEED_ROSTER_OAUTH_SCOPES__
+
+succeed_hobsons_labs:
+    predict_api:
+        access_key: $__SUCCEED_HOB_LABS_PREDICTAPI_ACCESS_KEY__
+        url: '$__SUCCEED_HOB_LABS_PREDICTAPI_URL__'

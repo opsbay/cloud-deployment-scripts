@@ -1,0 +1,14 @@
+---
+- include: auth_setup.yml
+  vars:
+    sshd_param: AuthorizedKeysCommandRunAs
+  when:
+    - ansible_distribution == "CentOS"
+    - ansible_distribution_major_version == "6"
+
+- include: auth_setup.yml
+  vars:
+    sshd_param: AuthorizedKeysCommandUser
+  when:
+    - ansible_distribution == "CentOS"
+    - ansible_distribution_major_version == "7"

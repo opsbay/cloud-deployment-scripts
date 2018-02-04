@@ -1,0 +1,41 @@
+server:
+  port: 6060
+
+error:
+  whitelabel:
+    enabled: false
+
+spring:
+  datasource:
+    url: jdbc:mysql://{{ cluster_address.value }}/{{ default_database_name.value }}?zeroDateTimeBehavior=convertToNull
+    username: {{  master_username.value }}
+    password: {{ master_password.value }}
+    driver-class-name: com.mysql.jdbc.Driver
+    test-on-borrow: false
+    test-while-idle: false
+    validation-query: SELECT 1
+    initial-size: 3
+    max-active: 10
+    max-idle: 4
+    min-idle: 0
+  jpa:
+    database: MYSQL
+    show-sql: false
+    generate-ddl: false
+  profiles:
+    active: swagger
+
+oauth:
+  clients:
+    - client1/clienttest45!
+    - lighthouse/L1ghtH0uze57$
+  secret: b0a9d296152311e4818334d8a19c2afe
+
+info:
+  app:
+    name: StudentService
+    description: Student Data Service
+
+management:
+  port: 6064
+  context_path: /management

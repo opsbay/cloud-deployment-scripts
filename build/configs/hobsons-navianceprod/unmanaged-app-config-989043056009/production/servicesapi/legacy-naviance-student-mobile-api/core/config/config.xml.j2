@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config>
+    <all>
+        <!-- BELOW IS FOR THE 'mobiledb' database -->
+        <default>
+            <db>
+                <adapter>Mysqli</adapter>
+                <read>
+                    <host>{{ reader_address.value }}</host>
+                    <username>{{ mobile.user }}</username>
+                    <password>{{ mobile.password }}</password>
+                    <dbname>{{ mobile.database }}</dbname>
+                </read>
+                <write>
+                    <host>{{ cluster_address.value }}</host>
+                    <username>{{ mobile.user }}</username>
+                    <password>{{ mobile.password }}</password>
+                    <dbname>{{ mobile.database }}</dbname>
+                </write>
+            </db>        
+        </default>
+        <!-- BELOW IS FOR THE 'naviance' database -->
+        <naviance>
+            <db>
+                <adapter>Mysqli</adapter>
+                <read>
+                    <host>{{ reader_address.value }}</host>
+                    <username>{{ naviance.user }}</username>
+                    <password>{{ naviance.password }}</password>
+                    <dbname>{{ naviance.database }}</dbname>
+                </read>
+                <write>
+                    <host>{{ cluster_address.value }}</host>
+                    <username>{{ naviance.user }}</username>
+                    <password>{{ naviance.password }}</password>
+                    <dbname>{{ naviance.database }}</dbname>
+                </write>
+            </db>
+       </naviance>
+       <settings>
+                <magic_token>m@g1c!</magic_token>
+                <nav_student_url>athena-student.jwoys.dev.naviance.com</nav_student_url>
+                <sso_duration>300</sso_duration>
+                <mail_service_url>https://services.naviance.com/services/strongmail/index.php?sm_key=df3bc4af6ae1964fcf5271ba85b2390a</mail_service_url>
+                <faq_url>https://succeed.naviance.com/mobilefaq</faq_url>
+                <app_url>https://itunes.apple.com</app_url>
+       </settings>
+       <!-- BELOW IS FOR THE comma separated list of memcache data servers -->
+       <memcache>
+           <servers>{% for cache in tf_testapp_p_cache_s %}{{ cache.Address }}{% if not loop.last %},{% endif %}{% endfor %}</servers>
+       </memcache>
+    </all>
+</config>

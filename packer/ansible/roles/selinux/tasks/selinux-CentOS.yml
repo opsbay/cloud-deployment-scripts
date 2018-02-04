@@ -1,0 +1,20 @@
+---
+- name: Install libselinux-python
+  yum:
+    name: libselinux-python
+    state: present
+
+- name: Install libsemanage-python
+  yum:
+    name: libsemanage-python
+    state: present
+
+- name: Install policycoreutils-python
+  yum:
+    name: policycoreutils-python
+    state: present
+
+- name: Put SELinux in permissive mode, logging actions that would be blocked.
+  selinux:
+    policy: targeted
+    state: permissive

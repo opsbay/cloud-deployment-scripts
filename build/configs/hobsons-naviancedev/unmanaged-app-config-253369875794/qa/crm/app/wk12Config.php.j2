@@ -1,0 +1,44 @@
+<?php
+/**
+ * Naviance, Inc
+ *
+ * LICENSE
+ * This source file is the property Naviance, Inc and may not be redistributed
+ * in part or its entirty without the expressed written consent of
+ * Naviance, Inc.
+ *
+ * @category    Naviance
+ * @package     WK12
+ * @subpackage  Config
+ * @copyright   Copyright (c) 2009 Naviance, Inc (www.naviance.com)
+ * @license
+ * @version     $Id: $
+ */
+require_once 'dbConfig.php';
+/* ENV VALUES*/
+DEFINE("BASE_INCLUDES_PATH", "/httpd/crm/succeed-legacy/wk12/includes"); //Full Path to WK12 includes directory (No Trailing Slash)
+DEFINE("FC_SERVER_NAME", $_SERVER['SERVER_NAME']); //Family Connection domain name
+DEFINE("CLIENT_PATH", "/clients/");
+DEFINE("NAV_ENV", "qa"); //dev, qa,  staging, or production
+DEFINE("MC_SERVERS", "{% for cache in tf_testapp_p_cache_d %}{{ cache.Address }}:{{ cache.Port }}{% if not loop.last %},{% endif %}{% endfor %}"); //Comma separated list
+DEFINE("BULK_PRINT_SERVER", "https://tf-succeed-{{ php_version }}-qa.mango.naviance.com");
+
+/* Emails */
+define('EMAIL_BILLING', 'billing@dev.naviance.com');
+define('EMAIL_RENEWALS', 'renewals@dev.naviance.com');
+define('EMAIL_PREPME_MANAGER', 'prepme-manager@dev.naviance.com');
+define('EMAIL_SALES', 'sales@dev.naviance.com');
+
+/* Mcrypt Config */
+DEFINE('MCRYPT_KEY', 'bl@upunktyw4tr');
+DEFINE('MCRYPT_KEY_TYPE_1', 'R@f8$h9K33V@k6memAw=zcEc');
+DEFINE('MCRYPT_ALGORITHM', 'tripledes');
+DEFINE('MCRYPT_ALGORITHM_DIRECTORY', '');
+DEFINE('MCRYPT_ALGORITHM_MODE', 'ecb');
+DEFINE('MCRYPT_ALGORITHM_MODE_DIRECTORY', '');
+
+// Create the IV randomly using urandom.
+DEFINE("MCRYPT_IV", mcrypt_create_iv(
+    mcrypt_get_iv_size(MCRYPT_ALGORITHM, MCRYPT_ALGORITHM_MODE),
+    MCRYPT_DEV_URANDOM
+));

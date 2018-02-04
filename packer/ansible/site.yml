@@ -1,0 +1,84 @@
+---
+
+# Thanks Server Fault https://serverfault.com/a/548090
+# See http://docs.ansible.com/ansible/playbooks_best_practices.html#operating-system-and-distribution-variance
+# and http://docs.ansible.com/ansible/group_by_module.html
+- name: Detect Operating System and Create Ansible Groups Based On Facts
+  hosts: all
+  tasks:
+  - name: group by OS versions
+    group_by: key="{{ ansible_distribution }}_{{ ansible_distribution_version.split('.')[0] }}"
+
+- name: Apply all available patches
+  hosts: all
+  become: true
+  roles:
+    - patch-latest
+
+- name: Install Splunk forwarders
+  hosts: CentOS_7:CentOS_6
+  become: true
+  roles:
+    - selinux
+    - splunk
+
+- name: Install Java
+  hosts: all
+  become: true
+  roles:
+    # This Java playbook comes from https://github.com/srsp/ansible-oracle-java
+    # which is a fork of https://github.com/William-Yeh/ansible-oracle-java
+    # the playbook that we started using in May 2017.
+    # 
+    # We use the srsp/ansible-oracle-java fork because it has been maintained
+    # better than the original.
+    # 
+    # For this playbook, it is conventional to specify the Java versions in vars
+    # files here. 
+    #
+    # As new JDK versions come out we will need to update these versions here, and
+    # also update the srsp/ansible-oracle-java playbook to get the code required
+    # to support those new versions.
+    - java
+  vars:
+    - java_version: 8
+    - java_subversion: 141
+    - java_build: 01
+
+- name: Install Application Support Packages
+  hosts: all
+  become: true
+  roles:
+    - hostname
+    - alertlogic
+    - nessus
+    - php5
+    - nodejs
+    - firewall
+    - utilities
+    - jinja2
+    - nginx
+    - newrelic
+    - apache
+    - pdftk
+    - user_auth
+    - tomcat
+    - auditd
+
+- name: Install Local CodeDeploy Support Packages
+  hosts: all
+  become: true
+  roles:
+    # Of all the playbooks here, these 3 (aws_cli, ruby, codedeploy) are required for
+    # the local codedeploy integration to run,  so if you are selectively disabling / commenting out
+    # playbooks to speed development cycles, do not disable these three.
+    # (see https://jira.hobsons.com/browse/NAWS-171)
+    - aws_cli
+    - ruby
+    - codedeploy
+
+- name: Install Security Hardening
+  hosts: CentOS_7
+  become: true
+  roles:
+    - RHEL7-CIS

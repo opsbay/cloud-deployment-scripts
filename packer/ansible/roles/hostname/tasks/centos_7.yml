@@ -1,0 +1,17 @@
+---
+
+# Installation of Hostname agent in Centos 7
+
+  - name: Generate service file for Hostname agent (systemd)
+    tags: [ install, hostnameinstall ]
+    template:
+      src:  hostnameagentlinker.service
+      dest: /etc/systemd/system/hostnameagentlinker.service
+      owner: root
+      mode: 0644
+
+  - name: Reload systemd services index
+    tags: [ install, hostnameinstall ]
+    become: yes
+    become_method: sudo
+    command: 'systemctl daemon-reload'

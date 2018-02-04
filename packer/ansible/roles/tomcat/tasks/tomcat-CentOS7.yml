@@ -1,0 +1,42 @@
+---
+- name: Install Tomcat on CentOS 7
+  tags: [install, tomcatinstall]
+  yum:
+    name: tomcat-7.0.76-3.el7_4
+    state: present
+
+- name: Ensure Tomcat is disabled
+  tags: [install, tomcatinstall]
+  service:
+    name: tomcat
+    state: stopped
+    enabled: no
+
+- name: Install SELinux tool to build modules
+  tags: [install, tomcatinstall]
+  yum:
+    name: selinux-policy-devel
+    state: present
+
+# This is a bug where Tomcat can't connect to MySQL, so we are fixing it.
+# See: https://bugzilla.redhat.com/show_bug.cgi?id=1491747
+- name: Install SELinux policy module
+  tags: [install, tomcatinstall]
+  become: yes
+  become_method: sudo
+  shell: |
+    make -f /usr/share/selinux/devel/Makefile
+    semodule -i tomcat_allow_mysql.pp
+  args:
+    chdir: "{{ role_path }}/files/"
+
+- name: Check if Tomcat policy fix module is installed
+  tags: [install, tomcatinstall]
+  shell: "semodule -l | grep tomcat_allow_mysql | wc -l"
+  register: tomcat_policy_grep
+  failed_when: tomcat_policy_grep.stdout < "1"
+
+- name: Notify if the SELinux policy for Tomcat and MySQL is present
+  tags: [install, tomcatinstall]
+  debug: msg='SELinux policy for Tomcat and MySQL is installed!'
+  when: tomcat_policy_grep.stdout > "0"

@@ -1,0 +1,70 @@
+version: 0.0
+os: linux
+files:
+  - source: artifacts/application-data-provisioner.jar
+    destination: /opt/{{ APP_NAME }}/application-data-provisioner
+    mode: 644
+  - source: artifacts/college-core-provisioner.jar
+    destination: /opt/{{ APP_NAME }}/college-core-provisioner
+    mode: 644
+  - source: artifacts/college-destination-core-provisioner.jar
+    destination: /opt/{{ APP_NAME }}/college-destination-core-provisioner
+    mode: 644
+  - source: artifacts/school-core-provisioner.jar
+    destination: /opt/{{ APP_NAME }}/school-core-provisioner
+    mode: 644
+  - source: /etc
+    destination: /opt/{{ APP_NAME }}/etc
+hooks:
+  ApplicationStop:
+    - location: bin/aws_alb_deregister.sh
+      timeout: 420
+      runas: root
+    - location: bin/disable_cron.sh
+      timeout: 600
+      runas: root
+    - location: bin/remove_logs_in_splunk.sh
+      timeout: 120
+      runas: splunk
+  BeforeInstall:
+    - location: bin/aws_asg_codedeploy_heartbeat.sh
+      timeout: 60
+      runas: root
+    - location: bin/prepare.sh
+      timeout: 60
+      runas: root
+  AfterInstall:
+    - location: bin/aws_asg_codedeploy_heartbeat.sh
+      timeout: 60
+      runas: root
+    - location: bin/get-config-files.sh
+      timeout: 300
+      runas: root
+    - location: bin/prepare-logging.sh
+      timeout: 120
+      runas: root
+    - location: bin/prepare-runners.sh
+      timeout: 120
+      runas: root
+    - location: bin/implement_new_relic_apm.sh
+      timeout: 60
+      runas: root
+    - location: bin/add_logs_to_splunk.sh
+      timeout: 300
+      runas: splunk
+  ApplicationStart:
+    - location: bin/aws_asg_codedeploy_heartbeat.sh
+      timeout: 60
+      runas: root
+    - location: bin/enable_cron.sh
+      timeout: 300
+      runas: root
+  ValidateService:
+    - location: bin/aws_asg_codedeploy_heartbeat.sh
+      timeout: 60
+      runas: root
+    - location: bin/aws_alb_register.sh
+      timeout: 240
+      runas: root
+
+

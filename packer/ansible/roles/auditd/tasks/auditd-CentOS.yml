@@ -1,0 +1,10 @@
+---
+  - name: Configure auditd daemon
+    tags: [ install, auditd ]
+    template:
+      src:  auditd.conf.j2
+      dest: /etc/audit/auditd.conf
+      force: yes
+      owner: root
+      group: root
+      mode: 0640

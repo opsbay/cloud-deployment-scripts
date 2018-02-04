@@ -1,0 +1,69 @@
+{
+    "variables": {
+        "aws_region": "{{env `AWS_DEFAULT_REGION`}}",
+        "aws_vpc_id": "{{env `PACKER_AWS_VPC_ID`}}",
+        "aws_subnet_id": "{{env `PACKER_AWS_SUBNET_ID`}}"
+    },
+    "builders": [
+        {
+            "name": "testapp-centos-6",
+            "type": "amazon-ebs",
+            "region": "{{ user `aws_region` }}",
+            "instance_type": "m4.large",
+            "subnet_id": "{{user `aws_subnet_id`}}",
+            "vpc_id": "{{user `aws_vpc_id`}}",
+            "ssh_username": "centos",
+            "ami_name": "centos-6-testapp-{{timestamp}}",
+            "ami_description": "CentOS 6 testapp",
+            "ami_users": "253369875794,989043056009",
+            "source_ami_filter": {
+                "filters": {
+                    "virtualization-type": "hvm",
+                    "name": "CentOS Linux 6 x86_64 HVM EBS*",
+                    "root-device-type": "ebs"
+                },
+                "owners": ["679593333241"],
+                "most_recent": true
+            },
+            "launch_block_device_mappings": [
+                {
+                    "device_name": "/dev/sda1",
+                    "volume_size": 30,
+                    "volume_type": "gp2",
+                    "delete_on_termination": true
+                }
+            ],
+            "ami_regions": [
+                "us-west-1"
+            ],
+            "tags": {
+                "Name": "CentOS 6 testapp {{timestamp}}"
+            }
+        }
+    ],
+    "provisioners": [
+        {
+            "type": "shell",
+            "scripts": [
+                "/opt/packer-src/bin/install-ansible.sh"
+            ]
+        },
+        {
+            "type": "ansible-local",
+            "playbook_file": "/opt/packer-src/ansible/site.yml",
+            "staging_directory": "/opt/packer-provisioner-ansible-local",
+            "playbook_dir": "/opt/packer-src/ansible",
+            "staging_directory": "/opt/packer-provisioner-ansible-local",
+            "extra_arguments": ["--extra-vars", "splunk_indexer={{user `splunk_indexer`}}"]
+        },
+        {
+            "type": "shell",
+            "script": "/opt/packer-src/bin/resize_centos6.sh"
+        },
+        {
+            "type": "shell",
+            "inline": ["echo Success"],
+            "pause_before": "10s"
+        }
+    ]
+}

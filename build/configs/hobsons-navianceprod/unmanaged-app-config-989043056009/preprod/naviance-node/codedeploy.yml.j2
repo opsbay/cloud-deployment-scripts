@@ -1,0 +1,61 @@
+---
+database:
+  database: {{ default_database_name.value }}
+  type: mysql
+  host: {{ cluster_address.value }}
+  port: 3306
+  username: {{  master_username.value }}
+  password: {{  master_password.value }}
+
+framework:
+  showBootstrapTime: true
+  bootstrapTimeout: 10
+
+logging:
+  console:
+    level: debug
+    handleExceptions: true
+    json: false
+    colorize: true
+  file:
+    level: error
+    filename: mr-family-connection-data.log
+    directory: /var/log/naviance-node
+    handleExceptions: true
+    json: true
+    maxsize: 5242880
+    maxFiles: 100
+    colorize: true
+  queries: true
+
+server:
+  env: dev
+  port: 8080
+  session:
+    name: mr-family-connection-data
+    secret: toomanysecrets
+    proxy: false
+    resave: false
+    saveUninitialized: false
+  jwt:
+      privateKey: toomanysecrets
+      options:
+        expiresIn: 1h
+
+swagger:
+  swagger: 2.0
+  host: localhost:8080
+  basePath: /
+
+api:
+  version: v1
+
+integration:
+  tests:
+    apiHost: http://localhost:8080
+
+externalResources:
+  roadtripNation:
+    apiUrl: https://api.roadtripnation.com
+    version: v1
+    token: 62a5e197f94e511f

@@ -1,0 +1,21 @@
+---
+
+- name: Install python devel package for CentOS
+  package: name=python-devel state=latest
+  when: ansible_distribution == "CentOS"
+
+- name: Install python devel package for Ubuntu
+  package: name=python-dev state=latest
+  when: ansible_distribution == "Ubuntu"
+  
+- name: Install python-pip
+  package: name={{ item }} state=latest
+  with_items:
+    - python-setuptools
+    - python-pip
+
+- name: Install j2cli
+  pip: name='j2cli[yaml]' state=present
+
+- name: Install jinja2-cli
+  pip: name='jinja2-cli' state=present

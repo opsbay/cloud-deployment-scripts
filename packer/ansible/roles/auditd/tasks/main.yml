@@ -1,0 +1,4 @@
+---
+- include: auditd-CentOS.yml
+  when:
+    - ansible_distribution == "CentOS"

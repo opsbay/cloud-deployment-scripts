@@ -1,0 +1,12 @@
+---
+ - name: start codedeploy-agent
+   service: name=codedeploy-agent state=started
+   when: ( ansible_os_family == 'CentOS' and ansible_lsb.major_release|int == 6 ) or ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+
+ - name: systemctl start codedeploy-agent
+   systemd:
+     state: started
+     daemon_reload: yes
+     name: codedeploy-agent
+   when: ansible_os_family == 'CentOS' and ansible_lsb.major_release|int == 7
+

@@ -1,0 +1,6 @@
+---
+- name: Install pdftk
+  yum:
+    name: "{{ pdftkUrl }}"
+    update_cache: yes
+    state: present

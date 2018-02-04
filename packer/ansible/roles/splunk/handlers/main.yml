@@ -1,0 +1,5 @@
+- name: restart splunk  
+  become: yes
+  become_method: sudo
+  shell: /opt/splunkforwarder/bin/splunk restart -user splunk
+  when: splunk_path.stat.exists == false

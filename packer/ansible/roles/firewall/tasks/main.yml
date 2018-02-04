@@ -1,0 +1,37 @@
+- name: Install libselinux-python
+  yum:
+    name: libselinux-python
+    state: present
+  when:
+    - ansible_distribution == "CentOS"
+
+- name: Firewall (CentOS 6) | Open firewall for httpd
+  template:
+    src: iptables.j2
+    dest: /etc/sysconfig/iptables
+  when:
+    - ansible_distribution == "CentOS"
+    - ansible_distribution_major_version == "6"
+
+- name: Firewall (CentOS 6) | Make sure that iptables is running and set to run at boot
+  service: name=iptables state=restarted enabled=yes
+  when:
+    - ansible_distribution == "CentOS"
+    - ansible_distribution_major_version == "6"
+
+- name: Firewall (CentOS 7) | Install firewalld (CentOS 7)
+  package: name={{ item }} state=present
+  with_items:
+    - firewalld
+  when:
+    - ansible_distribution == "CentOS"
+    - ansible_distribution_major_version == "7"
+
+- name: Firewall (CentOS 6) | Allow http in firewalld
+  firewalld:
+      service: http
+      permanent: true
+      state: enabled
+  when:
+    - ansible_distribution == "CentOS"
+    - ansible_distribution_major_version == "7"

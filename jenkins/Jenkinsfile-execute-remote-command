@@ -1,0 +1,84 @@
+#!/usr/bin/env groovy
+
+def AWS_DEV_CREDENTIAL_ID = 'unmanaged-jenkins-terraform'
+def default_timeout_minutes = 10
+
+properties([
+    parameters([
+        choiceParam(name: 'APPLICATION',
+                     description: "Select the application you would like to run the job for.\nFor a list of values, see https://docs.google.com/a/hobsons.com/spreadsheets/d/1To38bA5XZFS87tCuVWLoY6e7xSj_LcnGqINJz2O01XM/edit?usp=sharing",
+                     choices: [
+                        "",
+                        "cron",
+                        "cron-legacy",
+                     ].join("\n")),
+        choiceParam(name: 'ENVIRONMENT',
+                     description: 'The environment you would like to execute this in.',
+                     choices: [
+                        "",
+                        "qa",
+                        "staging",
+                     ].join("\n")),
+        choiceParam(name: 'MULTIPLICITY',
+                     description: 'Select whether to run this on a "single" or "many" instance.',
+                     choices: [
+                        "",
+                        "single",
+                        "many",
+                     ].join("\n")),
+        choiceParam(name: 'USER',
+                     description: 'Select the user which should execute this job.',
+                     choices: [
+                        "",
+                        "apache",
+                        "etl",
+                        "cronuser"
+                     ].join("\n")),
+
+        stringParam(name: 'COMMAND',
+                    description: "Enter the command that should be executed"),
+    ])
+])
+
+node {
+
+    stage('Checkout') {
+        timeout(time:default_timeout_minutes, unit:'MINUTES') {
+            sh 'sudo chown -Rh centos:centos .'
+            dir('cloud-deployment-scripts') {
+                checkout([
+                    $class: 'GitSCM',
+                    branches: [[name: 'master']],
+                    doGenerateSubmoduleConfigurations: false,
+                    extensions: [],
+                    submoduleCfg: [],
+                    userRemoteConfigs: [[
+                        credentialsId: 'github-api-hobsonsbuildserver-v2',
+                        url: 'https://github.com/naviance/cloud-deployment-scripts'
+                    ]]
+                ])
+                // Thanks Stack Overflow https://stackoverflow.com/a/34321368/424301
+                sh 'sudo git clean -fdx && cp env.sh.sample env.sh'
+            }
+        }
+    }
+
+    stage("Execute remote command") {
+
+        withCredentials([usernamePassword(
+            credentialsId: AWS_DEV_CREDENTIAL_ID,
+            usernameVariable: 'AWS_ACCESS_KEY_ID',
+            passwordVariable: 'AWS_SECRET_ACCESS_KEY')]
+        ) {
+            withCredentials([[
+                '$class': 'SSHUserPrivateKeyBinding',
+                credentialsId: 'dev-centos-cron',
+                keyFileVariable: 'SSH_KEYFILE']]
+            ) {
+                dir("cloud-deployment-scripts/bin") {
+                    sh "./execute-remote-command.sh ${APPLICATION} 5.6 ${ENVIRONMENT} ${MULTIPLICITY} ${USER} ${SSH_KEYFILE} '${COMMAND}'"
+                }
+            }
+        }
+    }
+}

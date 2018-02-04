@@ -1,0 +1,25 @@
+---
+
+# Installation of Splunk configuration agent in Centos 7
+
+  - name: Generate Splunk script for systemd service
+    tags: [ install, splunkinstall ]
+    template:
+      src: splunk_linker.sh
+      dest: /opt/splunkforwarder/splunk_linker.sh
+      owner: root
+      mode: 0744
+
+  - name: Generate service file for Splunk agent (systemd)
+    tags: [ install, splunkinstall ]
+    template:
+      src:  splunkagentlinker.service
+      dest: /etc/systemd/system/splunkagentlinker.service
+      owner: root
+      mode: 0644
+
+  - name: Reload systemd services index
+    tags: [ install, splunkinstall ]
+    become: yes
+    become_method: sudo
+    command: 'systemctl daemon-reload'

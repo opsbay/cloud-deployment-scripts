@@ -1,0 +1,73 @@
+#!/usr/bin/env groovy
+
+// Credential id name for AWS S3 access to obtain Jenkins config files.
+def AWS_DEV_CREDENTIAL_ID = 'unmanaged-jenkins-terraform'
+def AWS_DEV_ROUTE53_ZONE_ID = 'Z2JT2J3JLGFTW6'
+def AWS_PROD_CREDENTIAL_ID = 'unmanaged-jenkins-terraform-prod'
+def AWS_PROD_ROUTE53_ZONE_ID = 'ZJU8W34FOEUSP'
+def default_timeout_minutes = 10
+
+properties(
+    [
+        pipelineTriggers([cron('H/15 * * * *')])
+    ]
+)
+
+node {
+    stage('Checkout') {
+        timeout(time:default_timeout_minutes, unit:'MINUTES') {
+            sh 'sudo chown -Rh centos:centos .'
+            dir('cloud-deployment-scripts') {
+                checkout([
+                    $class: 'GitSCM',
+                    branches: [[name: 'master']],
+                    doGenerateSubmoduleConfigurations: false,
+                    extensions: [],
+                    submoduleCfg: [],
+                    userRemoteConfigs: [[
+                        credentialsId: 'github-api-hobsonsbuildserver-v2',
+                        url: 'https://github.com/naviance/cloud-deployment-scripts'
+                    ]]
+                ])
+                // Thanks Stack Overflow https://stackoverflow.com/a/34321368/424301
+                sh 'sudo git clean -fdx && cp env.sh.sample env.sh'
+            }
+        }
+    }
+
+    stage("Update mango.naviance.com") {
+        def ROUTE53_ZONE_ID = AWS_DEV_ROUTE53_ZONE_ID
+
+        withCredentials(
+            [
+                usernamePassword(
+                    credentialsId: AWS_DEV_CREDENTIAL_ID,
+                    usernameVariable: 'AWS_ACCESS_KEY_ID',
+                    passwordVariable: 'AWS_SECRET_ACCESS_KEY'
+                )
+            ])
+        {
+            dir("cloud-deployment-scripts/bin") {
+                sh "./update-dns-entries.sh ${AWS_DEV_ROUTE53_ZONE_ID}"
+            }
+        }
+    }
+
+    stage("Update papaya.naviance.com") {
+        def ROUTE53_ZONE_ID = AWS_PROD_ROUTE53_ZONE_ID
+
+        withCredentials(
+            [
+                usernamePassword(
+                    credentialsId: AWS_PROD_CREDENTIAL_ID,
+                    usernameVariable: 'AWS_ACCESS_KEY_ID',
+                    passwordVariable: 'AWS_SECRET_ACCESS_KEY'
+                )
+            ])
+        {
+            dir("cloud-deployment-scripts/bin") {
+                sh "./update-dns-entries.sh ${AWS_PROD_ROUTE53_ZONE_ID}"
+            }
+        }
+    }
+}

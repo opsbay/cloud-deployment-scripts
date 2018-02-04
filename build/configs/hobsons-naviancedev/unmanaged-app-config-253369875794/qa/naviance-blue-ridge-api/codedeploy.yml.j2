@@ -1,0 +1,55 @@
+---
+database:
+  replication:
+    master:
+      host: {{ cluster_address.value }}
+      port: 3306
+      username: {{ naviance.user }}
+      password: {{ naviance.password }}
+      database: {{ naviance.database }}
+    slaves:
+      - host: {{ reader_address.value }}
+        port: 3306
+        username: {{ naviance.user }}
+        password: {{ naviance.password }}
+        database: {{ naviance.database }}
+
+server:
+  session:
+    secret: "fSvOFPfqck4yrgZk9zT1XdfPBMkEIeFhyndK3EPc2En+LDhEuOsJ/A=="
+  jwt:
+    privateKey: "wFowZMByLx9oO9bpnqW3jULwBsuf1aoX/NMOmanQ6Sh4s4M36nLqFw=="
+
+externalResources:
+  iamAuthService:
+    apiUrl: https://iam-aws-qa.naviance.com/auth/sessions
+    enabled: true
+  iamIdentityService:
+    apiUrl: https://iam-aws-qa.naviance.com/person/identity
+    enabled: true
+  gallup:
+    iframeSrc: https://proofing.gallup.com/hobsonsse.gx
+    fcRedirectUri: https://family-connection-ui-qa.mango.naviance.com/about-me/strengths-explorer/redirect?type=success
+    fcErrorUri: https://family-connection-ui-qa.mango.naviance.com/about-me/strengths-explorer/redirect?type=error
+
+
+memcached:
+  host: {% for cache in tf_testapp_p_cache_d %}
+    - {{ cache.Address }}:{{ cache.Port }}{% endfor %}
+
+mailer:
+  host: tf-int-mailcatcher-dev.mango.naviance.com
+
+S3:
+  bucket: unmanaged-clientfiles-qa-253369875794
+
+oauth2:
+  tokenUrl: https://iamoauth-aws-qa.naviance.com/oauth/token
+  clientId: fcmobile.qa1
+  clientSecret: d8adc38-db5e-11e5-822e-b79ef2e29546
+
+assessmentClients:
+  strengthsExplorer:
+    clientId: 7565c170-ebe9-4b33-b980-6910b9502251
+    tokenRedirectUri: https://proofing.gallup.com/hobsonsse.gx
+    authCodeLifeTime: 600

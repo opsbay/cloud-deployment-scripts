@@ -1,0 +1,58 @@
+version: 0.0
+os: linux
+files:
+  - source: artifacts
+    destination: /usr/share/tomcat/webapps
+    owner: tomcat
+    group: tomcat
+    mode: 644
+hooks:
+  ApplicationStop:
+    - location: bin/aws_alb_deregister.sh
+      timeout: 420
+      runas: root
+    - location: bin/stop_service.sh
+      timeout: 60
+      runas: root
+    - location: bin/remove_logs_in_splunk.sh
+      timeout: 120
+      runas: splunk
+  BeforeInstall:
+    - location: bin/aws_asg_codedeploy_heartbeat.sh
+      timeout: 60
+      runas: root
+    - location: bin/prepare.sh
+      timeout: 60
+      runas: root
+  AfterInstall:
+    - location: bin/aws_asg_codedeploy_heartbeat.sh
+      timeout: 60
+      runas: root
+    - location: bin/implement_new_relic_apm.sh
+      timeout: 60
+      runas: root
+  ApplicationStart:
+    - location: bin/aws_asg_codedeploy_heartbeat.sh
+      timeout: 60
+      runas: root
+    - location: bin/setenv.sh
+      timeout: 30
+      runas: root
+    - location: bin/start_service.sh
+      timeout: 300
+      runas: root
+    - location: bin/add_logs_to_splunk.sh
+      timeout: 120
+      runas: splunk
+  ValidateService:
+    - location: bin/aws_asg_codedeploy_heartbeat.sh
+      timeout: 60
+      runas: root
+    - location: bin/validate.sh
+      timeout: 200
+      runas: root
+    - location: bin/aws_alb_register.sh
+      timeout: 240
+      runas: root
+
+

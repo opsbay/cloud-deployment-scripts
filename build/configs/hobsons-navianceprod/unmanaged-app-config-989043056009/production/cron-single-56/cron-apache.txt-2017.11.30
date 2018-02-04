@@ -1,0 +1,14 @@
+*/5 * * * *     /bin/bash /httpd/succeed/scripts/cron/edocs_process_submission_events.sh
+# #*/15 * * * *   /usr/bin/php /httpd/succeed/scripts/php/ProcessExpiredSubmissions.php 1> /tmp/timeout_submissions.log 2>&1
+00 4 * * *      /usr/bin/php /httpd/succeed/scripts/php/EdocsInstitutionSync.php
+30 2 * * *      /usr/bin/php /httpd/succeed/scripts/php/CommonAppMemberUpdate.php
+*/30 * * * *    /usr/bin/php -d memory_limit=2000M /httpd/succeed/scripts/php/CommonAppStudentDataUpdate_debug.php --substatusonly --ttl 1620 1>> /tmp/ca-student-update.log 2>&1
+*/5 * * * *     /bin/bash /httpd/succeed/scripts/cron/mtu_timeout_inactive_work_sessions.sh
+15,45 * * * *   /usr/local/bin/php -d memory_limit=500M /httpd/succeed/scripts/php/SyncOptStatus.php 1>> /tmp/syncopt.log 2>&1
+5,35 * * * *    /usr/local/bin/php /httpd/succeed/scripts/php/ProcessOptQueue.php 1>> /tmp/processopt.log 2>&1
+5-59/10 * * * * /bin/bash /httpd/succeed/scripts/cron/lor_collect_notification_recipients.sh
+3 20 * * *      /bin/bash /httpd/succeed/scripts/cron/lor_send_periodic_notification.sh
+*/1 * * * *     /httpd/succeed/scripts/cron/lor_process_request_events.sh  1>> /tmp/lor_events.log 2>&1
+0 * * * *       /bin/bash /httpd/succeed/scripts/cron/college_visit_send_notifications.sh
+* * * * *       /bin/bash /httpd/succeed/scripts/cron/process_student_record_event_stream.sh
+2 2 * * *       /httpd/succeed/app/console succeed:district-import:schedule --id=2400420DUS

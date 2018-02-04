@@ -1,0 +1,20 @@
+[Unit]
+Description=HTTP nodejs
+After=network.target
+wants=http
+
+[Service]
+WorkingDirectory=/opt/{{ APP_NAME }}
+ExecStart=/usr/bin/node /opt/{{ APP_NAME }}/lib/app.js
+Restart=always
+StandardOutput=syslog
+StandardError=syslog
+
+SyslogIdentifier={{ APP_NAME }}
+
+User=nobody
+Group=nobody
+Environment=NODE_ENV=codedeploy
+
+[Install]
+WantedBy=multi-user.target

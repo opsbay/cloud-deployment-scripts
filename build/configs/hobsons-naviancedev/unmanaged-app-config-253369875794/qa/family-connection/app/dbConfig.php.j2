@@ -1,0 +1,27 @@
+<?php
+/**
+ * Naviance, Inc
+ *
+ * LICENSE
+ * This source file is the property Naviance, Inc and may not be redistributed
+ * in part or its entirty without the expressed written consent of
+ * Naviance, Inc.
+ *
+ * @category    Naviance
+ * @package     WK12
+ * @subpackage  Config
+ * @copyright   Copyright (c) 2009 Naviance, Inc (www.naviance.com)
+ * @license
+ * @version     $Id: $
+ */
+
+/* DB VALUES*/
+DEFINE("DB_HOST", "{{ cluster_address.value }}"); //Database host name or ip
+DEFINE("DB_DATABASE", "{{ naviance.database }}");  //Database name
+DEFINE("DB_USER", "{{ naviance.user }}"); //Database user
+DEFINE("DB_PASSWORD", "{{ naviance.password }}"); //Database password
+
+DEFINE('DB_SLAVE_HOSTS', '{{ reader_address.value }}');
+DEFINE('DB_SLAVE_USER', '{{ naviance.user }}');
+DEFINE('DB_SLAVE_PASSWORD', '{{ naviance.password }}');
+DEFINE('DB_SLAVE_DATABASE', '{{ naviance.database }}');

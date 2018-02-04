@@ -1,0 +1,32 @@
+{
+    "cache_cluster_address_data": {
+        "sensitive": false,
+        "type": "string",
+        "value": "tf-testapp-p-cache-d.bi3kri.cfg.use1.cache.amazonaws.com"
+    },
+    "cache_cluster_address_session": {
+        "sensitive": false,
+        "type": "string",
+        "value": "tf-testapp-p-cache-s.bi3kri.cfg.use1.cache.amazonaws.com"
+    },
+    "cache_configuration_endpoint_data": {
+        "sensitive": false,
+        "type": "string",
+        "value": "tf-testapp-p-cache-d.bi3kri.cfg.use1.cache.amazonaws.com:11211"
+    },
+    "cache_configuration_endpoint_session": {
+        "sensitive": false,
+        "type": "string",
+        "value": "tf-testapp-p-cache-s.bi3kri.cfg.use1.cache.amazonaws.com:11211"
+    },
+    "cache_nodes_data": {
+        "sensitive": false,
+        "type": "string",
+        "value": "tf-testapp-p-cache-d.bi3kri.0001.use1.cache.amazonaws.com"
+    },
+    "cache_nodes_session": {
+        "sensitive": false,
+        "type": "string",
+        "value": "tf-testapp-p-cache-s.bi3kri.0001.use1.cache.amazonaws.com"
+    }
+}

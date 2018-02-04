@@ -1,0 +1,16 @@
+---
+
+version: 0.0
+os: linux
+cache: [{% for cache in tf_testapp_p_cache_d %}{host: '{{ cache.Address }}', port: {{ cache.Port }}}{% if not loop.last %},{% endif %}{% endfor %}]
+parameters:
+    database_host:     {{ cluster_address.value }}
+    database_port:     {{ cluster_port.value }}
+    database_name:     {{ naviance.database }}
+    database_user:     {{ naviance.user }}
+    database_password: {{ naviance.password }}
+    edocs_database_host:     {{ cluster_address.value }}
+    edocs_database_port:     {{ cluster_port.value }}
+    edocs_database_name:     {{ edocs.database }}
+    edocs_database_user:     {{ edocs.user }}
+    edocs_database_password: {{ edocs.password }}

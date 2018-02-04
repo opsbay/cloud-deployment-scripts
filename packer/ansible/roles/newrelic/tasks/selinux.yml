@@ -1,0 +1,28 @@
+---
+
+  - name: install selinux-policy-devel
+    tags: [ install, newrelicinstall ]
+    yum:
+      name: selinux-policy-devel
+      state: present
+
+  - name: Compile and install selinux policy
+    tags: [ install, newrelicinstall ]
+    become: yes
+    become_method: sudo
+    shell: |
+      make -f /usr/share/selinux/devel/Makefile
+      semodule -i newrelic.pp
+    args:
+      chdir: "{{ role_path }}/files/newrelic-selinux/"
+
+  - name: check if newrelic module is already installed
+    tags: [ install, newrelicinstall ]
+    shell: "semodule -l | grep newrelic | wc -l"
+    register: newrelic_grep
+    failed_when: newrelic_grep.stdout < "1"
+
+  - name: Notify if Selinux policy is present
+    tags: [ install, newrelicinstall ]
+    debug: msg='selinux policy is installed!'
+    when: newrelic_grep.stdout > "0"

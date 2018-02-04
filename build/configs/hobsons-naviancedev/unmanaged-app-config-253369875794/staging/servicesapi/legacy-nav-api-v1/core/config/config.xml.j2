@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config>
+    <all>
+        <default>
+            <db>
+                <adapter>Mysqli</adapter>
+                <read>
+                    <host>{{ reader_address.value }}</host>
+                    <username>{{ naviance.user }}</username>
+                    <password>{{ naviance.password }}</password>
+                    <dbname>{{ naviance.database }}</dbname>
+                </read>
+                <write>
+                    <host>{{ cluster_address.value }}</host>
+                    <username>{{ naviance.user }}</username>
+                    <password>{{ naviance.password }}</password>
+                    <dbname>{{ naviance.database }}</dbname>
+                </write>
+            </db>
+        </default>
+    </all>
+</config>

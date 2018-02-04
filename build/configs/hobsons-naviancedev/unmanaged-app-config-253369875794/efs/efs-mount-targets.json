@@ -1,0 +1,12 @@
+{
+    "client_files_mount_target": {
+        "sensitive": false,
+        "type": "string",
+        "value": "fs-7149c638.efs.us-east-1.amazonaws.com"
+    },
+    "edocs_mount_target": {
+        "sensitive": false,
+        "type": "string",
+        "value": "fs-7e49c637.efs.us-east-1.amazonaws.com"
+    }
+}

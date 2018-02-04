@@ -1,0 +1,38 @@
+parameters:
+    database_driver:   pdo_mysql
+    database_host:     {{ cluster_address.value }}
+    database_port:     ~
+    database_name:     {{ naviance.database }}
+    database_user:     {{ naviance.user }}
+    database_password: {{ naviance.password }}
+
+    mailer_transport:  smtp
+    mailer_host:       tf-int-mailcatcher-dev.mango.naviance.com
+    mailer_user:       ~
+    mailer_password:   ~
+
+    locale:            en
+    secret:            default-dev-secret-token
+
+    naviance_slave1_database_driver: pdo_mysql
+    naviance_slave1_database_host: {{ reader_address.value }}
+    naviance_slave1_database_port: ~
+    naviance_slave1_database_name: {{ naviance.database }}
+    naviance_slave1_database_user: {{ naviance.user }}
+    naviance_slave1_database_password: {{ naviance.password }}
+
+    naviance_slave2_database_driver: pdo_mysql
+    naviance_slave2_database_host: {{ reader_address.value }}
+    naviance_slave2_database_port: ~
+    naviance_slave2_database_name: {{ naviance.database }}
+    naviance_slave2_database_user: {{ naviance.user }}
+    naviance_slave2_database_password: {{ naviance.password }}
+
+    naviance_memcache_servers:
+    {% for cache in tf_testapp_p_cache_s %}
+     -
+        host: {{ cache.Address }}
+        port: {{ cache.Port }}
+    {% endfor %}
+
+    naviance_auth_bridge_shared_api_key: naviance-int

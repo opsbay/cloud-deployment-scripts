@@ -1,0 +1,13 @@
+---
+- name: Install basic packages
+  package: name={{ item }} state=present
+  with_items:
+    - unzip
+    - rsync
+    - tcpdump
+    - sysstat
+    - manpages
+    - mlocate
+    - nfs-common
+    - jq
+    - vim

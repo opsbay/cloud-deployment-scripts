@@ -1,0 +1,8 @@
+---
+splunk_working_directory: /tmp/Splunk/
+splunk_uf_binary_linux: splunkforwarder-6.6.1-aeae3fe0c5af-linux-2.6-x86_64.rpm
+splunk_binaries: /tmp/splunk_binaries/
+splunk_deployment_server: https://localhost:8000   
+splunk_deployment_server_port: 8000   
+splunk_password: admin
+splunk_user: admin

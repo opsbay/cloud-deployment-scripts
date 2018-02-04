@@ -1,0 +1,47 @@
+devMode: false
+
+# When true, editable PDFs are not permitted for uploads (single or MTM)
+blockingEditablePdf: true
+
+server:
+  port: 8050
+
+management:
+  port: 8052
+
+mongoConfig:
+    serverAddresses:
+     #- tf-mongo-qa-00.local.naviance.com:27017
+     #- tf-mongo-qa-01.local.naviance.com:27017
+     #- tf-mongo-qa-02.local.naviance.com:27017
+     - 10.24.168.152:27017
+    username: edocsuser
+    password: Ed0c5App
+
+uploadRequestProcessingQueue:
+    processingThreads: 0
+
+submissionRequestProcessingQueue:
+    processingThreads: 0
+
+workspaceRequestProcessingQueue:
+    processingThreads: 0
+
+# EDOCSVI-2256
+ntc:
+    polldeliveryevent:
+        cron: 0 0 0 1 1 ?
+
+parchmentSubmissionLocation:
+    checkForProblemSubmissionsWithinDays: 0
+
+fileRoot: /tmp/docs/edocs_upload/c
+workspaceFileRoot: /tmp/docs/edocs_mtu/c
+
+uploadConfig:
+    accessKey: AKIAIMEK5N7GM2NOMWOA
+    secretKey: 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
+    region: us-east-1
+    maxConnections: 50
+    mapFileToS3: false
+    bucketName: unmanaged-edocsapi-qa-253369875794

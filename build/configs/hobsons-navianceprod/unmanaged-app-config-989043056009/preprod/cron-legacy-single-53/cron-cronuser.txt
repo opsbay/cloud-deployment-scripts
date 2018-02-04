@@ -1,0 +1,7 @@
+# 0 2 * * *        /httpd/k12/scripts/cron/hobsons/update_hobsons_keyfacts
+# 20 15-23/1 * * * /httpd/k12/scripts/cron/hobsons/update_hobsons_keyfacts
+# 0 5 * * *        /httpd/k12/scripts/cron/hobsons/push_keyfacts_data_to_app_servers
+# 0 4 * * *        /httpd/k12/scripts/cron/hobsons/push_keyfacts_data_to_succeed_servers
+# #1 1 1 * *       /httpd/k12/scripts/cron/hobsons/monthly_data_mart_reports_for_IMS.sh
+# 01 2 * * *       /httpd/k12/scripts/cron/hobsons/update_hobsons_featured
+# */1 * * * *      /httpd/k12/scripts/cron/hobsons/process_activematch_connectors.sh

@@ -1,0 +1,16 @@
+[Unit]
+Description=Splunk service
+Wants=network.target
+Wants=network-online.target
+Wants=splunk.service
+Before=splunk.service
+After=network.target
+After=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/opt/splunkforwarder/splunk_linker.sh
+RemainAfterExit=no
+
+[Install]
+WantedBy=multi-user.target

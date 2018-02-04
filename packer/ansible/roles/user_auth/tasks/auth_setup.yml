@@ -1,0 +1,68 @@
+---
+- name: Copy authorized_keys_command.sh
+  copy:
+    src: "{{ role_path }}/files/authorized_keys_command.sh"
+    dest: /opt/authorized_keys_command.sh
+    owner: root
+    group: root
+    mode: 0755
+
+- name: Copy import_users.sh
+  copy:
+    src: "{{ role_path }}/files/import_users.sh"
+    dest: /opt/import_users.sh
+    owner: root
+    group: root
+    mode: 0755
+
+- name: Copy import_users_wrapper.sh
+  copy:
+    src: "{{ role_path }}/files/import_users_wrapper.sh"
+    dest: /opt/import_users_wrapper.sh
+    owner: root
+    group: root
+    mode: 0755
+
+- name: Copy download-aws-ec2-ssh.sh
+  copy:
+    src: "{{ role_path }}/files/download-aws-ec2-ssh.sh"
+    dest: /usr/local/sbin/
+    owner: root
+    group: root
+    mode: 0755
+
+- name: Set AuthorizedKeysCommand and RunAs in sshd_config
+  blockinfile:
+    path: /etc/ssh/sshd_config
+    mode: 0644
+    state: present
+    insertafter: EOF
+    block: |
+      AuthorizedKeysCommand /opt/authorized_keys_command.sh
+      {{ sshd_param }} nobody
+  notify: reload_sshd
+
+- name: Add block to rc.local to execute download-aws-ec2-ssh and import_users
+  blockinfile:
+    path: /etc/rc.d/rc.local
+    mode: 0755
+    state: present
+    insertafter: EOF
+    block: |
+      /usr/local/sbin/download-aws-ec2-ssh.sh
+      /opt/import_users.sh
+
+- name: Add cron to import_users
+  cron:
+    name: "Import Users"
+    minute: 0
+    job: "/opt/import_users_wrapper.sh"
+
+- name: Enable selinux boolean authlogin_yubikey
+  seboolean:
+    name: authlogin_yubikey
+    state: yes
+    persistent: yes
+  when:
+    - ansible_distribution == "CentOS"
+    - ansible_distribution_major_version == "7"

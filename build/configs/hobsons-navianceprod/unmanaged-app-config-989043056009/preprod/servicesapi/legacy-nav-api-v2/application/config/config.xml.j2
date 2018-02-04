@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config>
+    <all>
+        <modules>
+            <oauth>
+                <db>
+                    <adapter>Mysqli</adapter>
+                    <read>
+                        <host>{{ reader_address.value }}</host>
+                        <username>{{ naviance.user }}</username>
+                        <password><![CDATA[{{ naviance.password }}]]></password>
+                        <dbname>{{ naviance.database }}</dbname>
+                    </read>
+                    <write>
+                        <host>{{ cluster_address.value }}</host>
+                        <username>{{ naviance.user }}</username>
+                        <password><![CDATA[{{ naviance.password }}]]></password>
+                        <dbname>{{ naviance.database }}</dbname>
+                    </write>
+                </db>
+            </oauth>
+            <default>
+                <db>
+                    <adapter>Mysqli</adapter>
+                    <read>
+                        <host>{{ reader_address.value }}</host>
+                        <username>{{ naviance.user }}</username>
+                        <password><![CDATA[{{ naviance.password }}]]></password>
+                        <dbname>{{ naviance.database }}</dbname>
+                    </read>
+                    <write>
+                        <host>{{ cluster_address.value }}</host>
+                        <username>{{ naviance.user }}</username>
+                        <password><![CDATA[{{ naviance.password }}]]></password>
+                        <dbname>{{ naviance.database }}</dbname>
+                    </write>
+                </db>
+            </default>
+        </modules>
+    </all>
+</config>

@@ -1,0 +1,22 @@
+---
+- name: service nginx restart
+  service: name=nginx state=restarted
+  when: ( ansible_os_family == 'CentOS' and ansible_lsb.major_release|int == 6 ) or ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+
+- name: service nginx reload
+  service: name=nginx state=reloaded
+  when: ( ansible_os_family == 'CentOS' and ansible_lsb.major_release|int == 6) or ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+
+- name: systemctl restart nginx
+  systemd:
+    state: restarted
+    daemon_reload: yes
+    name: nginx
+  when: ansible_os_family == 'CentOS' and ansible_lsb.major_release|int == 7
+
+- name: systemctl reload nginx
+  systemd:
+    state: reloaded
+    daemon_reload: yes
+    name: nginx
+  when: ansible_os_family == 'CentOS' and ansible_lsb.major_release|int == 7

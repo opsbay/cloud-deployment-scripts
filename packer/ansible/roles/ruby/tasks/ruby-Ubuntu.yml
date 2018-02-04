@@ -1,0 +1,7 @@
+---
+ - name: Update apt cache on Ubuntu
+   apt: update_cache=yes cache_valid_time=86400
+
+ - name: Install Ruby, required for CodeDeploy, on Ubuntu
+   apt: name=ruby state=present
+

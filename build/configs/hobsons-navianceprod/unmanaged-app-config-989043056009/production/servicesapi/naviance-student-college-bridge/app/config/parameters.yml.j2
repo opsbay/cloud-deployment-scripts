@@ -1,0 +1,38 @@
+parameters:
+    database_driver:   pdo_mysql
+    database_host:     {{ cluster_address.value }}
+    database_port:     ~
+    database_name:     {{ naviance.database }}
+    database_user:     {{ naviance.user }}
+    database_password: {{ naviance.password }}
+
+    mailer_transport:  smtp
+    mailer_host:       smlb.local.naviance.com
+    mailer_user:       ~
+    mailer_password:   ~
+
+    locale:            en
+    secret:            5bef5fc7bf32433e1f2019ff4b7220b7166bb64e
+
+    naviance_slave1_database_driver: pdo_mysql
+    naviance_slave1_database_host: {{ reader_address.value }}
+    naviance_slave1_database_port: ~
+    naviance_slave1_database_name: {{ naviance.database }}
+    naviance_slave1_database_user: {{ naviance.user }}
+    naviance_slave1_database_password: {{ naviance.password }}
+
+    naviance_slave2_database_driver: pdo_mysql
+    naviance_slave2_database_host: {{ reader_address.value }}
+    naviance_slave2_database_port: ~
+    naviance_slave2_database_name: {{ naviance.database }}
+    naviance_slave2_database_user: {{ naviance.user }}
+    naviance_slave2_database_password: {{ naviance.password }}
+
+    naviance_memcache_servers:
+    {% for cache in tf_testapp_p_cache_s %}
+     -
+        host: {{ cache.Address }}
+        port: {{ cache.Port }}
+    {% endfor %}
+
+    naviance_student_college_bridge_shared_api_key: 939a8ede-0806-11e6-b512-3e1d05defe78

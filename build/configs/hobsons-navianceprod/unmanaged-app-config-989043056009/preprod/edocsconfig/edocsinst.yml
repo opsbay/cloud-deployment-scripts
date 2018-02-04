@@ -1,0 +1,34 @@
+server:
+  port: 8050
+
+management:
+  port: 8052
+
+mongoConfig:
+    serverAddresses:
+     - 10.32.202.11:27017
+     - 10.32.202.12:27017
+     - 10.32.202.13:27017
+    username: edocsuser
+    password: Ed0c5App
+
+# poll every 60 minutes
+institutions:
+    pollrecipient:
+        cron: 0 0/60 0 * * *
+#        cron: 0 0 12 1 1 *
+#        cron: 0 0 00 * * ? 2020
+
+service:
+    location:
+        ntc: https://ntc.hobsons.com:5443
+
+services:
+  oauth2:
+    client:
+      accessTokenUri: https://api.parchment.com/member-directory-api/oauth2/token
+      clientId: 08ac5f17-1055-4828-a279-d9b4a07fb85d
+      clientSecret: tyENpz2Xb
+  parchment:
+    baseUrl: https://api.parchment.com
+    destinationUrl: /member-directory-api/v1/receivers?deliveryMethods=ELECTRONIC&testSchools=false&organizationTypes=CO&size=50000&page=

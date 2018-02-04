@@ -1,0 +1,3 @@
+---
+
+codedeploy_download_path: "{{ ansible_env.HOME }}"

@@ -1,0 +1,47 @@
+{
+    "variables": {
+        "aws_vpc_id": "{{env `PACKER_AWS_VPC_ID`}}",
+        "aws_subnet_id": "{{env `PACKER_AWS_SUBNET_ID`}}",
+        "aws_region": "{{env `AWS_DEFAULT_REGION`}}",
+        "aws_ami_centos_6": "{{env `AWS_AMI_CENTOS_6`}}",
+        "aws_ami_centos_7": "{{env `AWS_AMI_CENTOS_7`}}",
+        "aws_ami_ubuntu_16_04": "{{env `AWS_AMI_UBUNTU_16_04`}}"
+    },
+    "builders": [
+        {
+            "name": "testapp-ubuntu",
+            "type": "amazon-ebs",
+            "region": "us-east-1",
+            "source_ami" : "{{ user `aws_ami_ubuntu_16_04` }}",
+            "instance_type": "m4.large",
+            "subnet_id": "{{user `aws_subnet_id`}}",
+            "vpc_id": "{{user `aws_vpc_id`}}",
+            "ssh_username": "ubuntu",
+            "ami_name": "ubuntu-xenial-testapp-{{timestamp}}",
+            "ami_description": "Ubuntu 16.04 testapp",
+            "ami_users": "253369875794,989043056009",
+            "ami_regions": [
+                "us-west-2"
+            ],
+            "tags": {
+                "Name": "Ubuntu 16.04 testapp {{timestamp}}"
+            }
+        }
+    ],
+    "provisioners": [
+        {
+            "type": "shell",
+            "scripts": [
+                "/opt/packer-src/bin/install-ansible.sh"
+            ]
+        },
+        {
+            "type": "ansible-local",
+            "playbook_file": "/opt/packer-src/ansible/site.yml",
+            "staging_directory": "/opt/packer-provisioner-ansible-local",
+            "playbook_dir": "/opt/packer-src/ansible",
+            "staging_directory": "/opt/packer-provisioner-ansible-local",
+            "extra_arguments": ["--extra-vars", "splunk_indexer={{user `splunk_indexer`}}"]
+        }
+    ]
+}

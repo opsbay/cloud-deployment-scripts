@@ -1,0 +1,87 @@
+server:
+  port: 8756
+  tomcat:
+    accesslog:
+      enabled: true
+      directory: /opt/naviance/iambridge/logs
+      pattern: '%{X-Forwarded-For}i %h %l %u %t "%r" %s %b'
+
+management:
+  port: 8757
+  context_path: /management
+
+spring:
+  profiles:
+    active: production
+  datasource:
+    url: jdbc:mysql:replication://{{ cluster_address.value }},{{ reader_address.value }}/{{ naviance.database }}
+    username: {{ naviance.user }}
+    password: {{ naviance.password }}
+    driver-class-name: com.mysql.jdbc.ReplicationDriver
+    testOnBorrow: true
+    testWhileIdle: true
+    validationQuery: /* ping */
+    minEvictableIdleTimeMillis: 60000
+    validationInterval: 30000
+    maxActive: 10
+    minIdle: 5
+    maxIdle: 5
+  jpa:
+    database: MYSQL
+    show-sql: false
+    generate-ddl: false
+    hibernate:
+      ddl-auto: none
+      dialect: org.hibernate.dialect.MySQL5Dialect
+  application:
+    name: NavianceIAMBridgeService
+  cloud:
+    config:
+      enabled: false
+
+info:
+  app:
+    name: NavianceIAMBridgeService
+    description: Naviance IAM Bridge Service
+
+endpoints:
+  health:
+    sensitive: false
+  info:
+    id: info
+    sensitive: false
+    enabled: true
+  loadBridgeData:
+    id: loadBridgeData
+    sensitive: false
+    enabled: false
+  cleanBridgeData:
+    id: cleanBridgeData
+    sensitive: false
+    enabled: false
+  env:
+    id: env
+    sensitive: false
+    enabled: true
+
+eureka:
+  instance:
+    leaseRenewalIntervalInSeconds: 20
+    appName: NavianceIAMBridgeService
+    preferIpAddress: true
+  client:
+#Enable the next two to support Eureka service registry
+    registerWithEureka: false
+    fetchRegistry: false
+#
+logging:
+  file: /opt/naviance/iambridge/logs/${info.app.name}
+  level.org.springframework: WARN
+
+bridge:
+  secret: 7026cf9a-8825-4172-8b42-c27aff4684bc
+
+navianceSso:
+    baseUrl: https://tf-connection-53-preprod.papaya.naviance.com/family-connection/auth/sso?id=
+    errorUrl: https://tf-connection-53-preprod.papaya.naviance.com/family-connection/error/access-denied
+    sharedSecret: d424c207-2317-11e4-aa27-080027150945

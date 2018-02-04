@@ -1,0 +1,16 @@
+{
+  "tf_testapp_p_cache_d": [
+    {
+      "Port": 11211,
+      "Address": "tf-perftest-cache-d.bi3kri.0001.use1.cache.amazonaws.com"
+    },
+    {
+      "Port": 11211,
+      "Address": "tf-perftest-cache-d.bi3kri.0002.use1.cache.amazonaws.com"
+    },
+    {
+      "Port": 11211,
+      "Address": "tf-perftest-cache-d.bi3kri.0003.use1.cache.amazonaws.com"
+    }
+  ]
+}

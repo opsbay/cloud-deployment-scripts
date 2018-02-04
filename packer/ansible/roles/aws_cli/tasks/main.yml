@@ -1,0 +1,4 @@
+---
+# tasks file for aws-cli
+- include: pip.yml tags=pip
+- include: aws_cli.yml tags=aws_cli

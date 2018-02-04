@@ -1,0 +1,29 @@
+---
+- name: Update SELinux for AlertLogic Agent
+  command: "semanage port -a -t syslogd_port_t -p tcp 1514"
+  when:
+    - ansible_distribution_major_version == "7"
+
+- name: Copy AlertLogic rpm file to host
+  copy:
+    src: "{{ role_path }}/binaries/al-agent-LATEST-1.x86_64.rpm"
+    dest: /tmp/alertlogic.rpm
+
+- name: Install AlertLogic Agent
+  yum:
+    name: /tmp/alertlogic.rpm
+    state: present
+
+# Confirmed with the security team that it's safe for this key to be in github
+# See Brian Kaitare's comment in https://jira.hobsons.com/browse/NAWS-643
+- name: Configure AlertLogic Registration Key
+  command: /etc/init.d/al-agent configure --key a6f5862a2f2d79c375434a3b25fa8ae5a0fe29e66df76fa5e4
+
+- name: Add rsyslog configuration for AlertLogic
+  lineinfile:
+    path: /etc/rsyslog.d/alertlogic.conf
+    mode: 0644
+    state: present
+    create: yes
+    line: '*.* @@127.0.0.1:1514;RSYSLOG_FileFormat'
+  notify: restart_rsyslog

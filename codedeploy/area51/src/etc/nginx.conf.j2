@@ -1,0 +1,59 @@
+##
+# You should look at the following URL's in order to grasp a solid understanding
+# of Nginx configuration files in order to fully unleash the power of Nginx.
+# http://wiki.nginx.org/Pitfalls
+# http://wiki.nginx.org/QuickStart
+# http://wiki.nginx.org/Configuration
+#
+# Generally, you will want to move this file somewhere, and start with a clean
+# file but keep this around for reference. Or just disable in sites-enabled.
+#
+# Please see /usr/share/doc/nginx-doc/examples/ for more detailed examples.
+##
+
+include hobsons-log-format.conf;
+
+# HTTP on port 80
+server {
+    listen 80;
+    server_name {{ serverName }};
+    root {{ documentRoot }};
+    index index.php index.html;
+
+    # ELB stores the protocol used between the client
+    # and the load balancer in the X-Forwarded-Proto request header.
+    # Check for 'https' and redirect if not
+    if ($http_x_forwarded_proto = 'http') {
+        rewrite ^ https://$host$request_uri? permanent;
+    }
+
+    # Location
+    location / {
+        try_files $uri $uri/ /index.php;
+    }
+
+    location ~ \.php {
+        fastcgi_split_path_info ^(.+?\.php)(/.*)$;
+
+        # Work around annoying nginx "feature" (https://trac.nginx.org/nginx/ticket/321)
+        set $path_info $fastcgi_path_info;
+        fastcgi_param PATH_INFO $path_info;
+        fastcgi_param PHP_VALUE  "include_path=.";
+
+        # Make sure the script exists.
+        try_files $fastcgi_script_name =404;
+
+        fastcgi_pass unix:/var/run/php-fpm/php-fpm.sock;
+        fastcgi_index index.php;
+        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+
+        proxy_buffer_size 128k;
+        proxy_buffers 4 256k;
+        proxy_busy_buffers_size 256k;
+
+        include fastcgi_params;
+    }
+
+    error_log /var/log/nginx/area51.local.error.log;
+    access_log /var/log/nginx/area51.local.access.log hobsons;
+}

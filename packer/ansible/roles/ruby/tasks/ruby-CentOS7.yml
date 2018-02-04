@@ -1,0 +1,10 @@
+---
+- name: Upgrade all packages on CentOS 7
+  yum: name=* state=latest
+
+- name: Install ruby and wget packages on CentOS 7
+  yum: name={{ item }} state=present
+  with_items:
+    - ruby
+    - wget
+

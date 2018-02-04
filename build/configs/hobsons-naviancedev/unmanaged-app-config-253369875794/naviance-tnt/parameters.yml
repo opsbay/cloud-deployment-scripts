@@ -1,0 +1,7 @@
+parameters:
+    database_host:     {{ cluster_address.value }}
+    database_port:     {{ cluster_port.value }}
+    database_name:     {{ naviance.database }}
+    database_user:     {{ naviance.user }}
+    database_password: {{ naviance.password }}
+    secret: ThisTokenIsNotSoSecretChangeIt

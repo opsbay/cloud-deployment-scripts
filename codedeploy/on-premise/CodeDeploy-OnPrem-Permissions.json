@@ -1,0 +1,46 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "codedeploy:Batch*",
+        "codedeploy:Get*",
+        "codedeploy:List*",
+        "elasticloadbalancing:Describe*",
+        "elasticloadbalancing:DeregisterInstancesFromLoadBalancer",
+        "elasticloadbalancing:RegisterInstancesWithLoadBalancer",
+        "autoscaling:Describe*",
+        "autoscaling:EnterStandby",
+        "autoscaling:ExitStandby",
+        "autoscaling:UpdateAutoScalingGroup",
+        "autoscaling:CompleteLifecycleAction",
+        "autoscaling:DeleteLifecycleHook",
+        "autoscaling:PutLifecycleHook",
+        "autoscaling:RecordLifecycleActionHeartbeat",
+        "ec2:Describe*",
+        "tag:getTagKeys",
+        "tag:getTagValues",
+        "tag:GetResources",
+        "sns:Publish"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "s3:Get*",
+        "s3:List*",
+        "s3:putObject"
+      ],
+      "Resource": [
+        "arn:aws:s3:::tf-codedeploy-{{ AWS_ACCOUNT_ID }}/*",
+        "arn:aws:s3:::unmanaged-codedeploy-{{ AWS_ACCOUNT_ID }}/*",
+        "arn:aws:s3:::unmanaged-app-config-{{ AWS_ACCOUNT_ID }}/*",
+        "arn:aws:s3:::aws-codedeploy-us-west-2/*",
+        "arn:aws:s3:::aws-codedeploy-us-east-1/*",
+        "arn:aws:s3:::unmanaged-codedeploy-{{ AWS_ACCOUNT_ID }}/succeed/*"
+      ]
+    }
+  ]
+}

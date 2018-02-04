@@ -1,0 +1,116 @@
+#!/bin/bash
+#
+# edocsapi		Start up the edocs api service
+#
+# chkconfig: 35 95 05
+# description: eDocs api service
+
+# Source function library.
+. /etc/init.d/functions
+
+SERVICE_DIR=/opt/edocsapi
+
+JAVA=/usr/bin/java
+JAR_FILE=$SERVICE_DIR/app.jar
+SERVICE_NAME=edocsapi
+USERNAME=edocsapi
+
+LOCK_FILE=/var/lock/subsys/$SERVICE_NAME
+LOG_FILE=$SERVICE_DIR/logs/$SERVICE_NAME.log
+ERROR_LOG=$SERVICE_DIR/logs/$SERVICE_NAME-error.log
+PID_FILE=$SERVICE_DIR/$SERVICE_NAME_pid.txt
+
+NEWRELIC="-javaagent:/opt/newrelic/newrelic.jar"
+OPTIONS="--spring.cloud.config.uri=http://10.32.102.12:8055/config"
+
+RETVAL=0
+start() {
+	echo -n "Starting $SERVICE_NAME: "
+	if [ $EUID -ne 0 ]; then
+		RETVAL=1
+		failure
+	elif [ -f $LOCK_FILE ]; then
+		echo "Lock file already exists for $SERVICE_NAME ..."
+		RETVAL=1
+		failure
+	else
+		daemonize -a -u $USERNAME -p $PID_FILE -c $SERVICE_DIR -o $LOG_FILE -e $ERROR_LOG -c $SERVICE_DIR $JAVA $NEWRELIC -jar $JAR_FILE $OPTIONS && success || failure
+		RETVAL=$?
+		[ $RETVAL -eq 0 ] && touch $LOCK_FILE
+	fi
+	echo
+	return $RETVAL
+}	
+
+graceful-stop() {
+	echo -n "Stopping $SERVICE_NAME: "
+	if [ $EUID -ne 0 ]; then
+		RETVAL=1
+		failure
+	else	
+		curl -X POST http://localhost:8052/shutdown
+		RETVAL=$?
+		[ $RETVAL -eq 0 ] && rm -f $LOCK_FILE
+	fi
+	echo
+	return $RETVAL
+}
+
+stop() {
+	echo -n "Killing $SERVICE_NAME: "
+	if [ $EUID -ne 0 ]; then
+		RETVAL=1
+		failure
+	else	
+		killproc -p $PID_FILE
+		RETVAL=$?
+		[ $RETVAL -eq 0 ] && rm -f $LOCK_FILE
+	fi
+	echo
+	return $RETVAL
+}
+
+restart() {
+	stop
+	start
+}
+
+force-clean() {
+	echo -n "Cleaning lock and pid files: "
+	rm -f $LOCK_FILE && rm -f $PID_FILE
+	RETVAL=$?
+	echo
+	return $RETVAL
+}
+
+case "$1" in
+    start)
+		start
+		RETVAL=$?
+	;;
+    stop)
+		stop
+		RETVAL=$?
+	;;
+	graceful-stop)
+		graceful-stop
+		RETVAL=$?
+	;;
+	force-clean)
+		force-clean
+		RETVAL=$?
+	;;
+    status)
+		status -p $PID_FILE $SERVICE_NAME
+		RETVAL=$?
+	;;
+    restart)
+    	restart
+    	RETVAL=$?
+	;;
+    *)
+	echo "Usage: $SERVICE_NAME {start|stop|graceful-stop|restart|force-clean|status}"
+	RETVAL=2
+	;;
+esac
+exit $RETVAL

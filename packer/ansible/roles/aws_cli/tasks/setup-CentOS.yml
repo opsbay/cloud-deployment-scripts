@@ -1,0 +1,6 @@
+---
+- name: AWS CLI | Install the EPEL repo python-pip
+  package: name={{ item }} state=present
+  with_items:
+    - epel-release
+    - python-pip

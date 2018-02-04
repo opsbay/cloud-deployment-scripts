@@ -1,0 +1,5 @@
+---
+# This came from  https://rpm.nodesource.com/setup_8.x
+# but we cache it here to keep a stable copy and avoid an HTTPS
+# negotiation issue (SNI related) on CentOS 6
+nodejs_major_version: 8

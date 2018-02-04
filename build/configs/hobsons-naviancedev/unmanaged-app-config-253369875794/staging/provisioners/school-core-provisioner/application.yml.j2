@@ -1,0 +1,46 @@
+datasource:
+  read:
+    url: jdbc:mysql://{{ reader_address.value }}:{{ cluster_port.value }}/{{ naviance.database }}?zeroDateTimeBehavior=convertToNull&autoReconnect=true&characterEncoding=UTF-8&characterSetResults=UTF-8
+
+    username: {{ naviance.user }}
+    password: {{ naviance.password }}
+    driverClassName: com.mysql.jdbc.Driver
+    testOnBorrow: true
+    testWhileIdle: true
+    validationQuery: SELECT 1
+  write:
+    url: jdbc:mysql://{{ cluster_address.value }}:{{ cluster_port.value }}/{{ naviance.database }}?zeroDateTimeBehavior=convertToNull&autoReconnect=true&characterEncoding=UTF-8&characterSetResults=UTF-8
+
+    username: {{ naviance.user }}
+    password: {{ naviance.password }}
+    driverClassName: com.mysql.jdbc.Driver
+    testOnBorrow: true
+    testWhileIdle: true
+    validationQuery: SELECT 1        
+
+services:
+  oauth2:
+    client:
+      accessTokenUri: https://iamoauth-aws-qa.naviance.com/oauth/token
+      clientId: qa.eventmatching.prodfc 
+      clientSecret: 134a6812-eced-4ec5-937b-fd04d4ca6cb6
+      scope: school.read school.write
+
+school:
+  core:
+    client:
+      url: https://qa-apis.naviance.com/school-core
+
+spring:
+  cloud:
+    config:
+      discovery:
+        enabled: false
+      server:
+        bootstrap: false
+
+provisioner:
+  school:
+    retrieveAll: true
+
+

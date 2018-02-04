@@ -1,0 +1,67 @@
+---
+- name: Install repositories on CentOS6
+  yum: name={{ item }} update_cache=yes state=present
+  with_items:
+    - epel-release
+    - https://centos6.iuscommunity.org/ius-release.rpm
+
+- name: Enable ius-archive repo on CentOS6
+  ini_file:
+    dest: /etc/yum.repos.d/ius-archive.repo
+    section: ius-archive
+    option: enabled
+    value: 1
+
+- name: Install php packages on CentOS 6
+  yum: name={{ item }} update_cache=yes state=present
+  with_items:
+    - php53u-5.3.28-5.ius.centos6
+    - php53u-bcmath-5.3.28-5.ius.centos6
+    - php53u-cli-5.3.28-5.ius.centos6
+    - php53u-common-5.3.28-5.ius.centos6
+    - php53u-fpm-5.3.28-5.ius.centos6
+    - php53u-gd-5.3.28-5.ius.centos6
+    - php53u-intl-5.3.28-5.ius.centos6
+    - php53u-imap-5.3.28-5.ius.centos6
+    - php53u-ldap-5.3.28-5.ius.centos6
+    - php53u-mbstring-5.3.28-5.ius.centos6
+    - php53u-mcrypt-5.3.28-5.ius.centos6
+    - php53u-mysql-5.3.28-5.ius.centos6
+    - php53u-pdo-5.3.28-5.ius.centos6
+    - php53u-pear
+    - php53u-pecl-apc
+    - php53u-pecl-memcache
+    - php53u-pecl-mongo
+    - php53u-pgsql-5.3.28-5.ius.centos6
+    - php53u-process-5.3.28-5.ius.centos6
+    - php53u-soap-5.3.28-5.ius.centos6
+    - php53u-tidy-5.3.28-5.ius.centos6
+    - php53u-xml-5.3.28-5.ius.centos6
+    - php53u-xmlrpc-5.3.28-5.ius.centos6
+    - ImageMagick
+
+- name: Symlink for php on CentOS6
+  file:
+    src: /usr/bin/php
+    dest: /usr/local/bin/php
+    state: link
+
+- name: set timezone to East coast
+  timezone:
+    name: America/New_York
+
+- name: Install ntp packages
+  yum: name={{ item }} update_cache=yes state=present
+  with_items:
+    - ntp
+    - ntpdate
+
+- name: Enable the ntpd service
+  service:
+    name: ntpd
+    enabled: yes
+
+- name: Enable the ntpdate service
+  service:
+    name: ntpdate
+    enabled: yes

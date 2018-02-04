@@ -1,0 +1,36 @@
+---
+ - stat: path=/opt/codedeploy-agent/bin/codedeploy-agent
+   register: codedeploy_agent
+
+ - name: Discover ec2 facts
+   ec2_facts:
+   when: codedeploy_agent.stat.exists == False
+
+ - set_fact: aws_default_region="us-east-1"
+   when: aws_default_region is not defined
+
+ - set_fact: aws_region="{{ aws_default_region }}"
+   when: ansible_ec2_placement_region is not defined
+
+ - set_fact: aws_region="{{ ansible_ec2_placement_region }}"
+   when: ansible_ec2_placement_region is defined
+
+ - name: Retrieve CodeDeploy installer
+   get_url:
+    url: "https://aws-codedeploy-{{ aws_region }}.s3.amazonaws.com/latest/install"
+    dest: "{{ codedeploy_download_path }}/codedeploy-installer"
+    mode: 0777
+   when: codedeploy_agent.stat.exists == False
+
+ - name: Run CodeDeploy installer
+   command: "{{ codedeploy_download_path }}/codedeploy-installer auto"
+   when: codedeploy_agent.stat.exists == False
+
+ - name: Ensure CodeDeploy runs on boot
+   service:
+     name: codedeploy-agent
+     state: started
+     enabled: yes
+
+ - name: Remove codedeploy-installer once we completed the installation
+   command: rm -rf '{{ codedeploy_download_path }}/codedeploy-installer'

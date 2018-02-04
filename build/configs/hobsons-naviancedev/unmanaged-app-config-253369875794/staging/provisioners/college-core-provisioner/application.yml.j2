@@ -1,0 +1,31 @@
+spring:
+  datasource:
+    url: jdbc:mysql://{{ cluster_address.value }}:{{ cluster_port.value }}/{{ naviance.database }}?zeroDateTimeBehavior=convertToNull&autoReconnect=true&characterEncoding=UTF-8&characterSetResults=UTF-8
+
+    username: {{ naviance.user }}
+    password: {{ naviance.password }}
+    driverClassName: com.mysql.jdbc.Driver
+    testOnBorrow: true
+    testWhileIdle: true
+    validationQuery: SELECT 1
+  cloud:
+    config:
+      discovery:
+        enabled: false
+      server:
+        bootstrap: false
+  profiles:
+    active: oauth2
+
+services:
+  oauth2:
+    client:
+      accessTokenUri: https://iamoauth-aws-qa.naviance.com/oauth/token
+      clientId: qa.provisioner.college
+      clientSecret: 5997d19c-f825-11e5-9ce9-5e5517507c6a
+
+college:
+  core:
+    client:
+      url: https://staging-apis-college.naviance.com
+

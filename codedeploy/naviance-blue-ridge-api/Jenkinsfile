@@ -1,0 +1,96 @@
+#!/usr/bin/env groovy
+// Credential id name for AWS S3 access to obtain Jenkins config files.
+def S3_CREDENTIAL_ID = 'unmanaged-jenkins-terraform'
+def default_timeout_minutes = 10
+
+properties([
+    parameters([
+        string(name: 'git_branch_tag_or_commit',
+               description: 'Git Branch, Tag, or Commit reference for Blue Ridge API',
+               defaultValue: 'master'),
+        string(name: 'deploy_git_branch_tag_or_commit',
+               description: 'Git Branch, Tag, or Commit reference for Cloud Deployment Scripts',
+               defaultValue: 'master')
+    ])
+])
+
+stage('Checkout') {
+    parallel cloud: {
+        node {
+            dir('cloud-deployment-scripts') {
+                timeout(time:default_timeout_minutes, unit:'MINUTES') {
+                    checkout([
+                        $class: 'GitSCM',
+                        branches: [[name: '${deploy_git_branch_tag_or_commit}']],
+                        doGenerateSubmoduleConfigurations: false,
+                        extensions: [],
+                        submoduleCfg: [],
+                        userRemoteConfigs: [[
+                            credentialsId: 'github-api-hobsonsbuildserver-v2',
+                            url: 'https://github.com/naviance/cloud-deployment-scripts'
+                        ]]
+                    ])
+                    // Thanks Stack Overflow https://stackoverflow.com/a/34321368/424301
+                    sh 'git clean -fdx && cp env.sh.sample env.sh'
+                }
+            }
+            stash includes: 'cloud-deployment-scripts/**', name: 'src-cloud'
+        }
+    }, app: {
+        node {
+            timeout(time:default_timeout_minutes, unit:'MINUTES') {
+                sh 'sudo chown -Rh "$USER:$USER" .'
+                dir('naviance-blue-ridge-api') {
+                    checkout([
+                        $class: 'GitSCM',
+                        branches: [[name: '${git_branch_tag_or_commit}']],
+                        doGenerateSubmoduleConfigurations: false,
+                        submoduleCfg: [],
+                        userRemoteConfigs: [[
+                            credentialsId: 'github-api-hobsonsbuildserver-v2',
+                            url: 'https://github.com/naviance/naviance-blue-ridge-api'
+                        ]]
+                    ])
+                    sh 'sudo git clean -fdx'
+                    def author = sh (
+                        script: 'git --no-pager show -s --format=%ae',
+                        returnStdout: true
+                    ).trim()
+                    def revision = sh (
+                        script: 'git describe --always --tags --long',
+                        returnStdout: true
+                    ).trim()
+                    currentBuild.displayName = "#${BUILD_NUMBER}: ${git_branch_tag_or_commit} ${revision}"
+                    currentBuild.description = "by ${author}"
+                    sh 'git describe --always --tags > TAG'
+                }
+                stash includes: 'naviance-blue-ridge-api/**', name: 'src-app'
+            }
+        }
+    }
+}
+
+stage('Run make build'){
+    node {
+        unstash 'src-cloud'
+        unstash 'src-app'
+        sh 'sudo chown -Rh "$USER:$USER" .'
+        withCredentials([
+            usernamePassword(credentialsId: S3_CREDENTIAL_ID,
+                             passwordVariable: 'AWS_SECRET_ACCESS_KEY',
+                             usernameVariable: 'AWS_ACCESS_KEY_ID')
+        ]) {
+          dir('naviance-blue-ridge-api') {
+              sh 'sudo rm -rf node_modules lib'
+          }
+          dir('cloud-deployment-scripts/codedeploy/naviance-blue-ridge-api') {
+            sh """
+                if ! which zip > /dev/null; then
+                    sudo yum -q -y install zip
+                fi
+                make meta all UPSTREAM_BRANCH=${git_branch_tag_or_commit}
+            """
+          }
+        }
+    }
+}

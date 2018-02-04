@@ -1,0 +1,2 @@
+# 30 23 * * * cd /opt/naviance/lausd; ./run-python.sh "python ./proxy_lausd_custom.py >> log/proxy_lausd_custom.log"
+# 00 17 * * * /bin/find /opt/naviance/lausd/archive/* -mtime +14 -not -path "*README.md" -exec rm {} \;

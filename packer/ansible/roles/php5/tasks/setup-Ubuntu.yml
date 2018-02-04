@@ -1,0 +1,39 @@
+---
+- name: Add Trusted PHP5 PPA
+  apt_repository:
+    repo: 'ppa:ondrej/php'
+
+- name: Update apt cache.
+  apt: update_cache=yes cache_valid_time=86400
+
+- name: install packages
+  apt: name={{ item }} update_cache=yes state=latest
+  with_items:
+    - libphp-adodb
+    - php5.6
+    - php5.6-cli
+    - php5.6-common
+    - php5.6-fpm
+    - php5.6-gd
+    - php5.6-json
+    - php5.6-mbstring
+    - php5.6-mcrypt
+    - php5.6-mysql
+    - php5.6-readline
+    - php5.6-soap
+    - php5.6-xml
+    - php5.6-zip
+
+- name: Install php conf
+  template:
+    src: php.ini.j2
+    dest: /etc/php/5.6/fpm/php.ini
+
+- name: Install www.conf
+  template:
+    src: www.conf.j2
+    dest: /etc/php/5.6/fpm/pool.d/www.conf
+
+- name: set timezone to East coast
+  timezone:
+    name: America/New_York

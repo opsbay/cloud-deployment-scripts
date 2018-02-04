@@ -1,0 +1,25 @@
+---
+
+# Installation of Nessus agent in Centos 7
+
+  - name: Generate nessus linker script for systemd service
+    tags: [ install, nessusinstall ]
+    template:
+      src: nessus_linker.sh
+      dest: /opt/nessus_agent/nessus_linker.sh
+      owner: root
+      mode: 0744
+
+  - name: Generate service file for Nessus agent (systemd)
+    tags: [ install, nessusinstall ]
+    template:
+      src:  nessusagentlinker.service
+      dest: /etc/systemd/system/nessusagentlinker.service
+      owner: root
+      mode: 0644
+
+  - name: Reload systemd services index
+    tags: [ install, nessusinstall ]
+    become: yes
+    become_method: sudo
+    command: 'systemctl daemon-reload'

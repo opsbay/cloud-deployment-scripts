@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config>
+    <all>
+        <!-- BELOW IS FOR THE 'mobiledb' database -->
+        <default>
+            <db>
+                <adapter>Mysqli</adapter>
+                <read>
+                    <host>{{ TBD }}</host>
+                    <username>{{ TBD }}</username>
+                    <password>{{ TBD }}</password>
+                    <dbname>{{ TBD }}</dbname>
+                </read>
+                <write>
+                    <host>{{ TBD }}</host>
+                    <username>{{ TBD }}</username>
+                    <password>{{ TBD }}</password>
+                    <dbname>{{ TBD }}</dbname>
+                </write>
+            </db>
+        </default>
+        <!-- BELOW IS FOR THE 'naviance' database -->
+        <naviance>
+            <db>
+                <adapter>Mysqli</adapter>
+                <read>
+                    <host>{{ TBD }}</host>
+                    <username>{{ TBD }}</username>
+                    <password>{{ TBD }}</password>
+                    <dbname>naviance</dbname>
+                </read>
+                <write>
+                    <host>{{ TBD }}</host>
+                    <username>{{ TBD }}</username>
+                    <password>{{ TBD }}</password>
+                    <dbname>naviance</dbname>
+                </write>
+            </db>
+       </naviance>
+       <settings>
+            <magic_token>{{ TBD }</magic_token>
+            <nav_student_url>{{ TBD }}</nav_student_url>
+            <sso_duration>300</sso_duration>
+            <mail_service_url>{{ TBD }}</mail_service_url>
+            <faq_url>https://succeed.naviance.com/mobilefaq</faq_url>
+            <app_url>https://itunes.apple.com</app_url>
+       </settings>
+       <!-- BELOW IS FOR THE comma separated list of memcache data servers -->
+       <memcache>
+           <servers>{{ TBD }}</servers>
+       </memcache>
+    </all>
+</config>

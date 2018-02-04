@@ -1,0 +1,7 @@
+{
+    "documentRoot": "/var/www/applications/{{ APP_NAME }}",
+    "phpFpmSockFile": "/var/run/php-fpm/php-fpm.sock",
+    "wwwGroup": "apache",
+    "wwwUser": "apache",
+    "serverRoot": "/etc/httpd"
+}

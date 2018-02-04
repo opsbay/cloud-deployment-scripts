@@ -1,0 +1,11 @@
+---
+- name: Install Apache on CentOS 6
+  yum:
+    name: httpd
+    state: latest
+
+- name: Ensure apache is disabled
+  service:
+    name: httpd
+    state: stopped
+    enabled: no

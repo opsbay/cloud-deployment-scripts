@@ -1,0 +1,14 @@
+---
+- include: pdftk-CentOS.yml
+  vars:
+    pdftkUrl: https://www.linuxglobal.com/static/blog/pdftk-2.02-1.el7.x86_64.rpm
+  when:
+    - ansible_distribution == "CentOS"
+    - ansible_distribution_major_version == "7"
+
+- include: pdftk-CentOS.yml
+  vars:
+    pdftkUrl: https://www.pdflabs.com/tools/pdftk-the-pdf-toolkit/pdftk-2.02-1.el6.x86_64.rpm
+  when:
+    - ansible_distribution == "CentOS"
+    - ansible_distribution_major_version == "6"

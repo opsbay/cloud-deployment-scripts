@@ -1,0 +1,11 @@
+-
+
+# Installation of Hostname agent in Centos 6
+
+  - name: Generate service file for Hostname agent (init.d)
+    tags: [ install, hostnameinstall ]
+    template:        
+      src:  hostname_service.sh
+      dest: /etc/init.d/hostnameagentlinker
+      owner: root
+      mode: 0755

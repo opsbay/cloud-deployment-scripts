@@ -1,0 +1,7 @@
+---
+- name: Install npm and node.js
+  yum: name={{item}} state=installed
+  with_items:
+   - npm
+   - nodejs
+  #when: ansible_os_family == 'CentOS' and ansible_lsb.major_release|int == 7

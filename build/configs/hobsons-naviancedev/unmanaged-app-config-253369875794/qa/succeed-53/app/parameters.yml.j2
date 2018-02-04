@@ -1,0 +1,348 @@
+parameters:
+    # Basic system config parameters
+    fc_server_name: tf-connection-qa.devops.naviance.com
+    client_path: /clients/
+    # environment is dev, qa, staging, or production
+    # DEPRECATED: Do not use in new code. Intent is to remove this param.
+    naviance_environment: qa
+
+    # System emails
+    subscriptions.billing.mail.from: billing@dev.naviance.com
+    subscriptions.renewals.mail.from: renewals@dev.naviance.com
+    subscriptions.renewals.mail.to: dl-k12-ps-successmgr@dev.naviance.com
+    subscriptions.sales.mail.to: sales@dev.naviance.com
+
+    # Default primary database
+    database_driver:   pdo_mysql
+    database_host:     {{ cluster_address.value }}
+    database_port:     {{ cluster_port.value }}
+    database_name:     {{ naviance.database }}
+    database_user:     {{ naviance.user }}
+    database_password: {{ naviance.password }}
+
+    # Default secondary databases
+    database.read1.driver:   pdo_mysql
+    database.read1.host:     {{ reader_address.value }}
+    database.read1.port:     {{ cluster_port.value }}
+    database.read1.name:     {{ naviance.database }}
+    database.read1.user:     {{ naviance.user }}
+    database.read1.password: {{ naviance.password }}
+
+    database.read2.driver:   pdo_mysql
+    database.read2.host:     {{ reader_address.value }}
+    database.read2.port:     {{ cluster_port.value }}
+    database.read2.name:     {{ naviance.database }}
+    database.read2.user:     {{ naviance.user }}
+    database.read2.password: {{ naviance.password }}
+
+    mailer_transport:  smtp
+    mailer_host:       tf-int-mailcatcher-dev.mango.naviance.com
+    mailer_port:       ~
+    mailer_user:       ~
+    mailer_password:   ~
+
+    email.blacklist.base_uri: 'http://localhost:8081/api/'
+
+    locale:            en
+    secret:            default-dev-secret-token
+
+    edocs_legacy_read_database_driver: pdo_mysql
+    edocs_legacy_read_database_host: {{ cluster_address.value }}
+    edocs_legacy_read_database_port: {{ cluster_port.value }}
+    edocs_legacy_read_database_name: {{ naviance.database }}
+    edocs_legacy_read_database_user: {{ naviance.user }}
+    edocs_legacy_read_database_password: {{ naviance.password }}
+
+    edocs_legacy_write_database_driver: pdo_mysql
+    edocs_legacy_write_database_host: {{ cluster_address.value }}
+    edocs_legacy_write_database_port: {{ cluster_port.value }}
+    edocs_legacy_write_database_name: {{ naviance.database }}
+    edocs_legacy_write_database_user: {{ naviance.user }}
+    edocs_legacy_write_database_password: {{ naviance.password }}
+
+    njq_database_driver: pdo_mysql
+    njq_database_host: {{ cluster_address.value }}
+    njq_database_port: {{ cluster_port.value }}
+    njq_database_name: {{ edocs.database }}
+    njq_database_user: {{ edocs.user }}
+    njq_database_password: {{ edocs.password }}
+
+    crazy_egg.enabled: false
+    live_reload.enabled: false
+    google_analytics.enabled: false
+    google_analytics.code: 'UA-XXXXXXXXX-1'
+
+    mtu.processing.api.root.uri: http://localhost:8090
+
+    edocs_upload_api_root_uri: http://localhost:8090
+    edocs_institution_root_uri: http://localhost:8070
+    #time out for polling for upload events in seconds
+    edocs_upload_api_upload_request_timeout: 5
+
+    succeed.main.family.connection.token.secret.key: bogus
+
+    edocs_legacy_memcache_servers: [{host:'{{ cache_cluster_address_data.value }}', port:11211}]
+    feature_toggle_memcache_servers: [{host:'{{ cache_cluster_address_data.value }}', port:11211}]
+
+    # Mapquest config
+    mapquest.api.key: rMAHJK!wjT&RDB*%6c3b3p#28R_kvGvyf
+    mapquest.geocoding.api.url: geocode.dev.mapquest.com
+
+    # Cache timeouts in seconds
+    edocs_legacy_memcache_short_ttl: 60
+    edocs_legacy_memcache_medium_ttl: 360
+    edocs_legacy_memcache_long_ttl: 3600
+
+    edocs_tools_api_enabled: false
+    edocs_tools_api_key: 88b0d70e-10a3-11e4-a3fd-080027fcbafc
+
+    # Turn on/off features
+    succeed.edocs.feature.mtu.enabled: true
+    succeed.edocs.feature.catools.enabled: false
+
+    succeed_legacy.web.base_path: "../../succeed/legacy/wk12"
+    succeed_legacy.web.base_url: ~
+
+    naviance.feature.toggle.base.url: https://tf-succeed-53-qa.devops.naviance.com/feature-toggle/index.php
+
+    # Naviance Oauth
+    naviance.oauth.url: http://oauth.local.naviance.com:8763/oauth
+    naviance.oauth.authorize.uri: /authorize
+    naviance.oauth.checktoken.uri: /check_token
+    naviance.oauth.client_id: naviance.dev
+    naviance.oauth.default.scope: ext.identity
+    naviance.oauth.cookie: SID
+
+    # College Search - has standard params for write, separate for read
+    college_search.database.read.host: {{ reader_address.value }}
+    college_search.database.read.user: {{ naviance.user }}
+    college_search.database.read.password: {{ naviance.password }}
+    college_search.database.read.name: {{ naviance.database }}
+
+    # Corporate LDAP
+    iam.ldap.server_1.host: ads.naviance.com
+    iam.ldap.server_1.base_dn: OU=US,OU=Hobsons,DC=Hobsons,DC=com
+    iam.ldap.server_1.account_canonical_form: 3
+    iam.ldap.server_1.account_domain_name: hobsons.com
+    iam.ldap.server_1.account_domain_name_short: hobsons.com
+
+    iam.ldap.server_2.host: ads.naviance.com
+    iam.ldap.server_2.base_dn: OU=US,OU=Hobsons,DC=Hobsons,DC=local
+    iam.ldap.server_2.account_canonical_form: 3
+    iam.ldap.server_2.account_domain_name: hobsons.local
+    iam.ldap.server_2.account_domain_name_short: hobsons.local
+
+    # Delegated Auth Logging, Log levels are Zend_Log priorities
+    # Log Levels: 0=Emergency, 1=Alert, 2=Critical, 3=Error, 4=Warning, 5=Notice, 6=Informational, 7=Debug
+    iam.delegated_auth.logs.mail.to: root@localhost.localdomain
+    iam.delegated_auth.logs.mail.from: delegated-auth-log@localhost.localdomain
+    iam.delegated_auth.logs.mail.subject: Delegated auth request
+    iam.delegated_auth.logs.level: 7
+
+    # Naviance Web Application SSO
+    iam.sso.access_key: f57beb4b006f4873971815563aff664c
+    iam.sso.shared_secret: 0ab60bbc06ff46b19d6c1d833bab251d
+    iam.sso.staff_auth_endpoint: https://tf-succeed-53-qa.devops.naviance.com/iam/v1/index.php/sso/staff
+    iam.sso.student_auth_endpoint: https://tf-succeed-53-qa.devops.naviance.com/family-connection/auth/sso
+    iam.sso.staff_error_endpoint: https://tf-succeed-53-qa.devops.naviance.com/auth/accessdenied
+    iam.sso.student_error_endpoint: https://tf-succeed-53-qa.devops.naviance.com/family-connection/error/access-denied
+
+    # Naviance IAM Global Auth
+    iam.auth.service.base_url: http://iam.local.naviance.com
+    iam.auth.service.timeout: 30
+    iam.auth.service.connect_timeout: 30
+    iam.auth.client.oauth.client_id: naviance.dev
+    iam.auth.client.oauth.client_secret: k5InZFa0JA
+    iam.auth.client.oauth.token_uri: http://oauth.local.naviance.com:8763/oauth/token
+    iam.auth.client.oauth.scope: 'session.command session.read'
+    iam.auth.cookie_name: SESSION
+    iam.auth.cookie_domain: .naviance.com
+    iam.auth.mocks_enabled: false
+    iam.auth.default_dashboard_page: https://tf-succeed-53-qa.devops.naviance.com/main/dashboards/dashboard.php
+
+    # Naviance Core API
+    naviance.core.api.student.service.base_url: http://succeed.local.naviance.com:8080
+    naviance.core.api.oauth.client_id: naviance.dev
+    naviance.core.api.oauth.client_secret: k5InZFa0JA
+    naviance.core.api.oauth.token_uri: http://oauth.local.naviance.com:8763/oauth/token
+    naviance.core.api.oauth.scope: student.read student.write
+
+    # NSC FTPS for Alumni Tracker (National Student Clearinghouse)
+    nsc.host: ftps.nslc.org
+    nsc.username: NavianceTest
+    nsc.password: ~
+
+    # CCR Curriculum
+    curriculum.sso_key: dec2cc74-a81f-11e5-bf7f-feff819cdc9f
+    curriculum.sso_url: http://learn.local.naviance.com:9999/succeed
+    curriculum.roster.ui: http://roster.local.naviance.com:8778/curriculum/landing
+    curriculum.activation_date: 2014-08-01 01:00:00
+    curriculum.aws_sqs.transmit_url: http://aws-stub.local.naviance.com/982847374517/QA_LH_Todo_Event
+    curriculum.aws_sqs.receive_url: http://aws-stub.local.naviance.com/982847374517/QA_LH_SP_Event
+    curriculum.aws_sqs.key: mPiYt2YNw9bhqokc
+    curriculum.aws_sqs.secret: UzyUGaul4HQSj7SK
+    curriculum.aws_sqs.polling_interval: 20000
+    curriculum.aws_sqs.wait_time: 20
+    curriculum.aws_sqs.max_messages: 10
+    curriculum.aws_sqs.region: us-east-1
+
+    # Elementary Roster
+    elementary.roster.ui: http://roster-devsys.naviance.com/elementary/landing
+
+    # Naviance Network (Lithium SSO)
+    naviance_network.sso_key: 37524c634e26715b4a6d446344434f5f
+    naviance_network.environment: dev
+    naviance_network.cname: 'http://nn-sandbox.local.naviance.com'
+
+    # Test Prep
+    test_prep.session_encryption_key: tCL3Ghjphh8Lq6KVqbxygV7k
+    test_prep.session_lifetime: 10800
+    test_prep.cookie_name: SID
+    test_prep.cookie_domain: .naviance.com
+    test_prep.cookie_lifetime: 10800
+    test_prep.sso_url: http://oauth.local.naviance.com/oauth/authorize?response_type=code&amp;client_id=bp.auth&amp;scope=ext.identity&amp;redirect_uri=http://testprep.local.naviance.com/sso/naviance
+    test_prep.subscription_url: http://gatekeeper-group.local.naviance.com/usergroups/assignments
+    test_prep.subscription_access_token: d938d968-10f5-4955-8fc8-a09a9d7b8015
+    test_prep.oauth_scope: user.groups.root user.groups.group workspace.write roster.upload.write workspace.root user.groups.data.template.download ext.idcommand
+    test_prep.roster.ui: http://roster.local.naviance.com:8778/testprep/landing
+
+    # Salesforce API
+    salesforce.api.user: navianceapi@hobsons.com.global360
+    salesforce.api.key: B@pen8yu5F8q!Z06rw3cx1!iF86t6ongMCUvoB0mNXHCiuV
+    salesforce.api.wsdl: '%kernel.root_dir%/../legacy/wk12/includes/sforce_phptoolkit/soapclient/sand.partner.wsdl.xml'
+    salesforce.api.user_id: 00580000001hl8eAAA
+    salesforce.web_to_case_form.url: 'http://webto.salesforce.com/servlet/servlet.WebToCase?encoding=UTF-8'
+    salesforce.web_to_case_form.org_id: 00D8A0000008qn3
+    salesforce.owner.cache.ttl: 86400
+
+    # Powerschool
+    powerschool.client.url: http://localhost:8033
+    powerschool.client.secret: 5w6WZ8vO83193fvzn1e6wH96846p30a4
+    powerschool.client.timeout: 5
+    powerschool.client.connect_timeout: 5
+    powerschool.log.enable: 1
+    powerschool.log.name: naviance_powerschool
+    powerschool.log.path: /var/log/naviance/powerschool.log
+    powerschool.log.level: 200
+
+    # Product Links
+    product_links:
+      -
+        product_id: 15
+        product_type: district
+        href: https://tf-succeed-53-qa.devops.naviance.com/district/test-prep
+      -
+        product_id: 14
+        product_type: district
+        href: https://tf-succeed-53-qa.devops.naviance.com/curriculum/landing
+      -
+        product_id: 16
+        product_type: district
+        href: https://tf-succeed-53-qa.devops.naviance.com/elementary/landing
+
+    # Community
+    community.landing.url: 'https://dev-hs.hobsonsdev.net/'
+    community.notification.api.url: 'https://qa.community.hobsons.com/cp-api/notifications'
+    community.notification.api.token: f6b44f8a-8d02-4e6c-81ff-24267f8b41cd
+    #Cache expire time in seconds
+    community.notification.cache.expiretime: 300
+
+    #Intersect
+    intersect.notification.api.url: 'https://qa.community.hobsons.com/cp-api/notifications'
+    intersect.notification.api.token: f6b44f8a-8d02-4e6c-81ff-24267f8b41cd
+    #Cache expire time in seconds
+    intersect.notification.cache.expiretime: 300
+
+    # Naviance Clever Match
+    clever.match_ui.url: 'https://succeed.local.naviance.com:8870/clever-match-app'
+
+    #Student Record Service (SRS) Event Stream
+    srs.event_stream.aws_sqs.receive_url: 'http://sqs.us-east-1.amazonaws.com/152185996511/Dev_Student_Record_Event'
+    srs.event_stream.aws_sqs.key: AKIAIRLUVNE6KT3OQRVA
+    srs.event_stream.aws_sqs.secret: GSgfdsgklfdgFDGFDSGFDGfd
+    # Polling interval (miliseconds)
+    srs.event_stream.aws_sqs.polling_interval: 20000
+    # Wait time (seconds)
+    srs.event_stream.aws_sqs.wait_time: 20
+    srs.event_stream.aws_sqs.max_messages: 10
+    srs.event_stream.aws_sqs.region: us-east-1
+
+    #Staff Record Event Stream
+    staff.event_stream.aws_sqs.receive_url: 'http://sqs.us-east-1.amazonaws.com/152185996511/Dev_Clever_Staff_Record_Event_Succeed'
+    staff.event_stream.aws_sqs.key: AKIAJGPJNAVNFOBRD2CA
+    staff.event_stream.aws_sqs.secret: GSgfdsgklfdgFDGFDSGFDGfd
+    # Polling interval (miliseconds)
+    staff.event_stream.aws_sqs.polling_interval: 20000
+    # Wait time (seconds)
+    staff.event_stream.aws_sqs.max_messages: 10
+    staff.event_stream.aws_sqs.region: us-east-1
+    staff.event_stream.command.loop.count: 30
+
+    # Reporting Framework
+    reporting_framework.database.data.host: {{ cluster_address.value }}
+    reporting_framework.database.data.user: {{ naviance.user }}
+    reporting_framework.database.data.password: {{ naviance.password }}
+    reporting_framework.database.data.name: {{ naviance.database }}
+    reporting_framework.url: http://succeed.local.naviance.com:8080
+    reporting_framework.data: http://succeed.local.naviance.com
+    reporting_framework.key: 781da51a-a415-11e5-bf7f-feff819cdc9f
+
+    # Assessments
+    # For the database, prod and staging connect to an external db.
+    # For test on dev, the hes_dev db needs to be created just to test the connection...db can be empty
+    personality_type_1.sunset_after_year: 2014
+    personality_type_2.client_id: ac076837-c4a5-11e3-a1a8-0050568d0057
+    learning_style_2.client_id: 1cf41331-c413-11e3-a1a8-0050568d0057
+    mi_advantage_2.client_id: 0cf2445e-c413-11e3-a1a8-0050568d0057
+    mi_advantage_2.database.adapter: Mysqli
+    mi_advantage_2.database.read.host: {{ reader_address.value }}
+    mi_advantage_2.database.read.user: {{ naviance.user }}
+    mi_advantage_2.database.read.password: {{ naviance.password }}
+    mi_advantage_2.database.read.name: {{ naviance.database }}
+
+    # StrengthsExplorer
+    strengths_explorer.client_id: b488b79e-14a0-11e3-94dd-48427277fd8e
+
+    # Marketing Content
+    marketing_content.signin: /marketing/signin.html
+    marketing_content.signout: /marketing/signout.html
+    marketing_content.banner.enabled: true
+    marketing_content.banner.url: http://www.naviance.com/marketplace/
+
+    # Beta Dashboard
+    beta_dashboard.feedback_link: "https://www.surveymonkey.com/r/NavDash"
+
+    succeed.main.email_status.client.base_uri: 'http://172.18.0.1:8010/public/'
+
+    # BIRST config
+    birst.url: 'https://birst-dev.naviance.com'
+    birst.space.name: Naviance
+    birst.space.id: c5753903-c975-4023-ac86-aed671ea1de9
+    birst.dashboard.id: dashboard2.0
+    birst.sso.password: lo4Asft38zuZ20mEemuaGnCLDU8yEQ38
+    birst.sso.tokengenerator.endpoint: /TokenGenerator.aspx
+    birst.sso.iframe.endpoint: /SSO.aspx
+    birst.admin_user.login: navianceAdmin
+    birst.admin_user.password: NavianceB1rst!
+    birst.group.name: exporter
+
+    # AWS
+    aws_sns.key: 'AKIAIEXPJGOFSDYASN4A'
+    aws_sns.secret: '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'
+    aws_sns.region: 'us-east-1'
+    application_legacy.sns_topic: 'arn:aws:sns:us-east-1:152185996511:QA-topic-edocs-application-create'
+
+    # Beta Dashboard
+    beta_dashboard.feedback_link: "https://www.surveymonkey.com/r/NavDash"
+succeed_legacy:
+    edocs_common_app_service_enabled: false
+
+succeed_data_import:
+    roster:
+        oauth:
+            scopes: user.groups.root user.groups.group workspace.write roster.upload.write workspace.root user.groups.data.template.download
+
+succeed_hobsons_labs:
+    predict_api:
+        access_key: secret
+        url: 'https://api-ada.hobsonshighered.com/ds/am/predict'

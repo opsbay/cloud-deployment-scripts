@@ -1,0 +1,32 @@
+# */10 * * * * /httpd/k12/scripts/cron/strongmail/mailer.sh
+# #20 00 * * * /httpd/k12/scripts/cron/strongmail/smlogprocess.sh
+# 30 2 * * *   /httpd/k12/scripts/cron/success-planner/process_exams
+# 0 3 * * *    /httpd/k12/scripts/cron/success-planner/automated_reminder
+* * * * *    /bin/sh /httpd/k12/scripts/cron/bulk-print/process-bulk-course-plan.sh
+* * * * *    /bin/sh /httpd/k12/scripts/cron/bulk-print/process-course-plan.sh
+# 55 1 * * *   /usr/local/bin/php /httpd/k12/scripts/DataImport/district_import.php 1
+# 05 2 * * *   /usr/local/bin/php /httpd/k12/scripts/DataImport/district_import.php 1
+# 45 1 * * *   /usr/local/bin/php /httpd/k12/scripts/DataImport/district_import.php 1
+# 30 1 * * *   /httpd/k12/scripts/cron/clients/nav-dataloader.sh
+# 01 6 * * *   /httpd/k12/scripts/cron/clients/nav-dataloader-hour-6.sh
+# 01 7 * * *   /httpd/k12/scripts/cron/clients/nav-dataloader-hour-7.sh
+# 01 8 * * *   /httpd/k12/scripts/cron/clients/nav-dataloader-hour-8.sh
+# 01 5 * * *   /httpd/k12/scripts/cron/clients/pvusd_dataloader
+# 15 2 * * *   /usr/local/bin/php /httpd/k12/scripts/DataImport/district_import_fixed.php
+# 20 2 * * *   /usr/local/bin/php /httpd/k12/scripts/DataImport/district_import_fixed.php
+# 30 2 * * *   /usr/local/bin/php /httpd/k12/scripts/DataImport/district_import_fixed.php
+# 5 2 * * *    /usr/local/bin/php /httpd/k12/scripts/DataImport/district_import_fixed.php
+# 10 2 * * *   /usr/local/bin/php /httpd/k12/scripts/DataImport/district_import_fixed.php
+# 45 2 * * *   /usr/local/bin/php /httpd/k12/scripts/DataImport/district_import_fixed.php
+# 0 7 * * *    /usr/local/bin/php /httpd/k12/scripts/DataImport/district_import_fixed.php -v
+# 12 2 * * *   /usr/local/bin/php /httpd/k12/scripts/DataImport/district_student_import_chicago_ps.php
+# 55 1 * * *   /usr/local/bin/php /httpd/k12/scripts/DataImport/district_student_import_lausd.php
+# 30 7 * * *   /httpd/k12/scripts/cron/clients/school-sync.sh
+# 25 2 * * *   /usr/local/bin/php /httpd/k12/scripts/DataImport/district_sat_1600_scale_2016_import_queue_processor.php
+# 0 3 * * *    /bin/bash /httpd/k12/scripts/cron/nsc_import.sh
+# 0 19 * * *   /httpd/k12/scripts/CollegeSummit/CSExportBatch.sh complete
+# * * * * *    /httpd/k12/scripts/cron/success-planner/lighthouse_integration.sh
+# 5 0 * * *    /usr/local/bin/php /httpd/k12/scripts/NTP/benchprep-group-processor.php  1>> /tmp/bench-prep-processor.log 2>&1
+# #01 1 * * *  /httpd/k12/scripts/cron/clients/empty_trash
+# #0 */4 * * * /httpd/k12/scripts/cron/internal/scattergram_cleanup.sh
+# #0 2 * * *   /httpd/k12/scripts/cron/reporting-framework/process_report

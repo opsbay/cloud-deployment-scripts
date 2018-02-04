@@ -1,0 +1,85 @@
+version: 0.0
+os: linux
+files:
+  - source: package
+    destination: /opt/naviance/{{ APP_NAME }}
+  - source: /etc
+    destination: /opt/naviance/{{ APP_NAME }}/etc
+  - source: cron
+    destination: /opt/naviance/{{ APP_NAME }}/etc
+  - source: bin
+    destination: /opt/naviance/{{ APP_NAME }}/bin
+hooks:
+  ApplicationStop:
+    - location: bin/stop-crond.sh
+      timeout: 60
+      runas: root
+    - location: bin/stop-nfs.sh
+      timeout: 60
+      runas: root
+    - location: bin/remove_logs_in_splunk.sh
+      timeout: 120
+      runas: splunk
+  BeforeInstall:
+    - location: bin/aws_asg_codedeploy_heartbeat.sh
+      timeout: 60
+      runas: root
+    - location: bin/clean-directory.sh
+      timeout: 60
+      runas: root
+    - location: bin/prepare-directory.sh
+      timeout: 300
+      runas: root
+  AfterInstall:
+    - location: bin/aws_asg_codedeploy_heartbeat.sh
+      timeout: 60
+      runas: root
+    - location: bin/rsync-sourcetree.sh
+      timeout: 300
+      runas: root
+    - location: bin/get-config-files.sh
+      timeout: 300
+      runas: root
+    - location: bin/add-dirs-symlinks.sh
+      timeout: 300
+      runas: root
+    - location: bin/check-php-version.sh
+      timeout: 60
+    - location: bin/cache-clear.sh
+      timeout: 120
+      runas: root
+    - location: bin/cache-warm.sh
+      timeout: 120
+      runas: root
+    - location: bin/file-attributes.sh
+      timeout: 120
+      runas: root
+    - location: bin/prepare-logging.sh
+      timeout: 30
+      runas: root
+    - location: bin/implement_new_relic_apm.sh
+      timeout: 300
+      runas: root
+    - location: bin/configure-crond.sh
+      timeout: 300
+      runas: root
+    - location: bin/add_logs_to_splunk.sh
+      timeout: 120
+      runas: splunk
+    - location: bin/install-jenkins-ssh-key.sh
+      timeout: 120
+      runas: root
+  ApplicationStart:
+    - location: bin/aws_asg_codedeploy_heartbeat.sh
+      timeout: 60
+      runas: root
+    - location: bin/start-crond.sh
+      timeout: 60
+      runas: root
+  ValidateService:
+    - location: bin/aws_asg_codedeploy_heartbeat.sh
+      timeout: 60
+      runas: root
+    - location: bin/health-check.sh
+      timeout: 300
+      runas: root

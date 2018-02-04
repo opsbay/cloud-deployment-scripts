@@ -1,0 +1,26 @@
+server:
+  port: 8050
+
+management:
+  port: 8052
+
+mongoConfig:
+    serverAddresses:     
+     - 10.32.202.11:27017
+     - 10.32.202.12:27017
+     - 10.32.202.13:27017
+    username: edocsuser
+    password: Ed0c5App
+
+spring:
+  profiles:
+    active: upload,submission,mtm,collectionCleaner
+security:
+   basic:
+     # set to true when enabling oauth
+     enabled: true
+   sessions: stateless
+oauth2:
+   clientId: edocsinstitution
+   clientSecret: 9EmuAc0V9z2ZZwWzHysOsJvKdiPFH8iK
+   checkTokenEndpointURL: https://iamoauth-aws.naviance.com/oauth/check_token

@@ -1,0 +1,74 @@
+#!/usr/bin/env groovy
+// Credential id name for AWS S3 access to obtain Jenkins config files.
+def S3_CREDENTIAL_ID = 'unmanaged-jenkins-terraform'
+
+properties([
+    parameters([
+        string(name: 'git_branch_tag_or_commit', defaultValue: '*/develop')
+    ])
+])
+
+stage('Checkout') {
+    parallel cloud: {
+        node {
+            dir('cloud-deployment-scripts') {
+                checkout([
+                    $class: 'GitSCM',
+                    branches: [[name: '*/NAWS-22/codedeploy-blue-ridge-jenkins']],
+                    doGenerateSubmoduleConfigurations: false,
+                    extensions: [],
+                    submoduleCfg: [],
+                    userRemoteConfigs: [[
+                        credentialsId: 'github-api-hobsonsbuildserver-v2',
+                        url: 'https://github.com/naviance/cloud-deployment-scripts'
+                    ]]
+                ])
+                // Thanks Stack Overflow https://stackoverflow.com/a/34321368/424301
+                sh 'sudo git clean -fdx && cp env.sh.sample env.sh'
+            }
+            stash includes: 'cloud-deployment-scripts/**,succeed-legacy/**', name: 'src-cloud'
+        }
+    }, app: {
+        node {
+            dir('succeed-legacy') {
+                checkout([
+                    $class: 'GitSCM',
+                    branches: [[name: '${git_branch_tag_or_commit}']],
+                    extensions: [[$class: 'CloneOption', noTags: false, reference: '', shallow: true]],
+                    doGenerateSubmoduleConfigurations: false,
+                    submoduleCfg: [],
+                    userRemoteConfigs: [[
+                        credentialsId: 'github-api-hobsonsbuildserver-v2',
+                        url: 'https://github.com/naviance/succeed-legacy'
+                    ]]
+                ])
+                sh 'sudo git clean -fdx'
+            }
+            stash includes: 'cloud-deployment-scripts/**,succeed-legacy/**', name: 'src-app'
+        }
+    }
+}
+stage('Push archive to S3'){
+    node {
+        unstash 'src-cloud'
+        unstash 'src-app'
+        withCredentials([
+            usernamePassword(credentialsId: S3_CREDENTIAL_ID, passwordVariable: 'S3_KEY', usernameVariable: 'S3_USERNAME')
+        ]) {
+            sh '''
+            pwd && ls -al
+            rm -rf succeed-legacy/.git
+            mkdir -p cloud-deployment-scripts/codedeploy/exampleapp
+            rsync -a succeed-legacy/ cloud-deployment-scripts/codedeploy/exampleapp
+            export AWS_ACCESS_KEY_ID=$S3_USERNAME
+            export AWS_SECRET_ACCESS_KEY=$S3_KEY
+            aws iam get-user
+            aws deploy push \
+                --region us-east-1 \
+                --application-name tf-testapp \
+                --s3-location s3://tf-codedeploy-253369875794/exampleapp-app-placeholder-${BUILD_NUMBER}.zip \
+                --source cloud-deployment-scripts/codedeploy/exampleapp
+            '''
+        }
+    }
+}

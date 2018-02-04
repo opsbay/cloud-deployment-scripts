@@ -1,0 +1,17 @@
+---
+- name: Add New Relic Apt repository on Ubuntu
+  apt_repository:
+    repo: 'deb http://apt.newrelic.com/debian/ newrelic non-free'
+    state: present
+    update_cache: no
+
+- name: Add New Relic GPG key for Ubuntu
+  apt_key: url=https://download.newrelic.com/548C16BF.gpg state=present
+
+- name: install newrelic-sysmond on Ubuntu
+  apt: name=newrelic-sysmond state=latest update_cache=yes
+
+- name: Ensure New Relic Agent won't auto-start on Ubuntu
+  service: name=newrelic-sysmond enabled=no
+
+

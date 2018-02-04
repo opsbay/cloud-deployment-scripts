@@ -1,0 +1,25 @@
+[Unit]
+Description=Hostname Agent service
+Requires=network-online.target
+Wants=network.target
+Wants=splunk.service
+Wants=splunk_linker.service
+Wants=nessus.service
+Wants=newrelic-sysmond.service
+Wants=nessus_linker.service
+Wants=rsyslog.service
+Before=splunk.service
+Before=nessus_linker.service
+Before=nessus.service
+Before=rsyslog.service
+Before=newrelic-sysmond.service
+After=network.target
+After=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/opt/hostname_agent/hostname_linker.sh
+RemainAfterExit=no
+
+[Install]
+WantedBy=multi-user.target

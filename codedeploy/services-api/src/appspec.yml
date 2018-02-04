@@ -1,0 +1,82 @@
+version: 0.0
+os: linux
+files:
+  - source: /bin
+    destination: /opt/{{ APP_NAME }}/bin
+  - source: /etc
+    destination: /opt/{{ APP_NAME }}/etc
+  - source: /www
+    destination: /opt/{{ APP_NAME }}/www
+  - source: /assessment-api-prototype
+    destination: /httpd/navserv-beta
+  - source: /legacy-nav-api-v1
+    destination: /httpd/navserv-v1
+  - source: /legacy-nav-api-v2
+    destination: /httpd/navserv-beta-v2
+  - source: /legacy-naviance-student-mobile-api
+    destination: /httpd/mob-api
+  - source: /naviance-auth-bridge
+    destination: /httpd/naviance-auth-bridge/live
+  - source: /naviance-student-college-bridge
+    destination: /httpd/naviance-student-college-bridge
+  - source: /succeed-legacy
+    destination: /httpd/k12
+hooks:
+  ApplicationStop:
+    - location: bin/aws_alb_deregister.sh
+      timeout: 420
+      runas: root
+    - location: bin/stop-server.sh
+      timeout: 300
+      runas: root
+    - location: bin/remove_logs_in_splunk.sh
+      timeout: 120
+      runas: splunk
+  BeforeInstall:
+    - location: bin/aws_asg_codedeploy_heartbeat.sh
+      timeout: 60
+      runas: root
+    - location: bin/remove_previous.sh
+      timeout: 300
+      runas: root
+  AfterInstall:
+    - location: bin/aws_asg_codedeploy_heartbeat.sh
+      timeout: 60
+      runas: root
+    - location: bin/set-selinux.sh
+      timeout: 300
+      runas: root
+    - location: bin/get-config-files.sh
+      timeout: 300
+      runas: root
+    - location: bin/check-php-version.sh
+      timeout: 60
+    - location: bin/add_dirs_symlinks.sh
+      timeout: 300
+      runas: root
+    - location: bin/file-attributes.sh
+      timeout: 300
+      runas: root
+    - location: bin/implement_new_relic_apm.sh
+      timeout: 300
+      runas: root
+    - location: bin/add_logs_to_splunk.sh
+      timeout: 120
+      runas: splunk
+  ApplicationStart:
+    - location: bin/aws_asg_codedeploy_heartbeat.sh
+      timeout: 60
+      runas: root
+    - location: bin/start-server.sh
+      timeout: 300
+      runas: root
+  ValidateService:
+    - location: bin/aws_asg_codedeploy_heartbeat.sh
+      timeout: 60
+      runas: root
+    - location: bin/validate-service.sh
+      timeout: 60
+      runas: root
+    - location: bin/aws_alb_register.sh
+      timeout: 240
+      runas: root

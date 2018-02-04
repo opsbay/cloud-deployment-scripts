@@ -1,0 +1,22 @@
+---
+- name: Install basic packages
+  package: name={{ item }} state=present
+  with_items:
+    - unzip
+    - rsync
+    - tcpdump
+    - sysstat
+    - man-pages
+    - mlocate
+    - nfs-utils
+    - vim-enhanced
+    - jq
+    # The following are required by https://jira.hobsons.com/browse/NAWS-433
+    # Family Connection Mobile Solution needs the fonts and supporting packages
+    # in order to render PDFs on the server side
+    - urw-fonts
+    - libXext
+    - libXrender
+    - fontconfig
+    - wget
+

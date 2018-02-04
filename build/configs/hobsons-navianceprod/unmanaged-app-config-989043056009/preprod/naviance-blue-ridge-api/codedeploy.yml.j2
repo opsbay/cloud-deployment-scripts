@@ -1,0 +1,59 @@
+---
+database:
+  extra:
+    connectionLimit: 100
+    restoreNodeTimeout: 500
+  replication:
+    master:
+      host: {{ cluster_address.value }}
+      port: 3306
+      username: {{ naviance.user }}
+      password: {{ naviance.password }}
+      database: {{ naviance.database }}
+    slaves:
+      - host: {{ reader_address.value }}
+        port: 3306
+        username: {{ naviance.user }}
+        password: {{ naviance.password }}
+        database: {{ naviance.database }}
+
+server:
+  session:
+    secret: "3/IoK8JWu/uRA2PaXJ6skntb5q/OZYrPm+WNuP6/qH+NWt2rT7FF2w=="
+  jwt:
+    privateKey: "0T+CfIQFh1XUDNffnNbFrobF0s0bvPN0FxeaOOKtABQtBc6OeGTQgA=="
+
+externalResources:
+  collegeProducts:
+    apiHost: http://hss.hobsons-us.com
+    apiKey: 997489b1bafc476592a0e7070f73c138
+  iamAuthService:
+    apiUrl: https://iam.naviance.com/auth/sessions
+    enabled: false
+  iamIdentityService:
+    apiUrl: https://iam.naviance.com/person/identity
+    enabled: false
+  gallup:
+    iframeSrc: https://proofing.gallup.com/hobsonsse.gx
+    fcRedirectUri: https://family-connection-ui-preprod.papaya.naviance.com/about-me/strengths-explorer/redirect?type=success
+    fcErrorUri: https://family-connection-ui-preprod.papaya.naviance.com/about-me/strengths-explorer/redirect?type=error
+
+memcached:
+  host: {% for cache in tf_testapp_p_cache_d %}
+    - {{ cache.Address }}:{{ cache.Port }}{% endfor %}
+
+mailer:
+  host: tf-int-mailcatcher-prod.papaya.naviance.com
+
+S3:
+  bucket: unmanaged-clientfiles-preprod-989043056009
+
+oauth2:
+  tokenUrl: https://oauth.naviance.com/oauth/token
+  clientId: fcmobile.prod
+  clientSecret: 5997d0ca-f825-11e5-9ce9-5e5517507c66
+
+assessmentClients:
+  lsiClientId: 20d7852e-c4af-11e3-a1a8-0050568d0057
+  miClientId: 2e50cac6-c4af-11e3-a1a8-0050568d0057
+  dwyaClientId: 0441be22-c4af-11e3-a1a8-0050568d0057

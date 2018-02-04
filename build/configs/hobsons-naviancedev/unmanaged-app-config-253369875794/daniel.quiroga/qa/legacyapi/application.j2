@@ -1,0 +1,37 @@
+management:
+  security:
+    enabled: false
+  health:
+    mongo:
+      enabled: false
+
+spring:
+  application:
+    name: NavianceLegacyApi
+  profiles:
+    # set to oauth2 when enabling auth
+    active: oauth2
+  datasource:
+    url: jdbc:mysql://{{ cluster_address.value }}/{{ default_database_name.value }}?zeroDateTimeBehavior=convertToNull
+    username: {{  master_username.value }}
+    password: {{ master_password.value }}
+  jpa:
+    show-sql: false
+
+security:
+  basic:
+    # set to true when enabling oauth
+    enabled: true
+  sessions: stateless
+
+oauth2:
+  clientId: qa.lor.legacy
+  clientSecret: 5997d412-f825-11e5-9ce9-5e5517507c66
+  checkTokenEndpointURL: https://iamoauth-qa.naviance.com/oauth/check_token
+
+logging:
+  file: /opt/naviance/legacyapi/logs/${spring.application.name}.log
+
+cloud:
+  config:
+    enabled: false

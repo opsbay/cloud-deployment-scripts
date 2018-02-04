@@ -1,0 +1,59 @@
+spring:
+  application:
+    name: NavianceApplicationDataProvisioner
+  profiles:
+    active: oauth2
+  main:
+    web-environment: false
+    
+datasource:
+  write:
+    url: jdbc:mysql://{{ cluster_address.value }}:{{ cluster_port.value }}/{{ naviance.database }}?zeroDateTimeBehavior=convertToNull&autoReconnect=true&characterEncoding=UTF-8&characterSetResults=UTF-8
+
+    username: {{ naviance.user }}
+    password: {{ naviance.password }}
+    driverClassName: com.mysql.jdbc.Driver
+    testOnBorrow: true
+    testWhileIdle: true
+    validationQuery: SELECT 1
+  read:
+    url: jdbc:mysql://{{ reader_address.value }}:{{ cluster_port.value }}/{{ naviance.database }}?zeroDateTimeBehavior=convertToNull&autoReconnect=true&characterEncoding=UTF-8&characterSetResults=UTF-8
+
+    username: {{ naviance.user }}
+    password: {{ naviance.password }}
+    driverClassName: com.mysql.jdbc.Driver
+    testOnBorrow: true
+    testWhileIdle: true
+    validationQuery: SELECT 1       
+
+services:
+  oauth2:
+    client:
+      accessTokenUri: https://iamoauth-aws-qa.naviance.com/oauth/token
+      clientId: qa.provisioner.application
+      clientSecret: d68754ce-9236-11e6-a17a-6635daa3a348
+      scope: data.read data.write
+
+data:
+  api:
+    client:
+      url: https://qa-apis.naviance.com/data-core
+    partition:
+      size: 100
+      
+thread:
+  pool:
+    corePoolSize: 5
+    maxPoolSize: 50
+    queueCapacity: 100
+
+batch:
+ throttleLimit: 5
+
+logging:
+  file: /opt/provisioners/application-data-provisioner/logs/${spring.application.name}
+  
+class-years: 2013,2014,2015,2016,2017
+
+dry-run: false
+

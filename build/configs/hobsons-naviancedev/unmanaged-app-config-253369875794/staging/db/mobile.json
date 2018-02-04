@@ -1,0 +1,7 @@
+{
+    "mobile" : {
+        "database": "mobile_staging",
+        "user": "mobile_staging",
+        "password": "9hnmpbCyg5vJ/TAwHvRY84T0cvL+5w/EBg6E5dbat1tZ7aEvJE+gsg=="
+    }
+}

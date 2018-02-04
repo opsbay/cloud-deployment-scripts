@@ -1,0 +1,19 @@
+{
+  "Id": "Policy1509110865847",
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "Stmt1509110864447",
+      "Action": [
+        "s3:PutObject"
+      ],
+      "Effect": "Allow",
+      "Resource": "arn:aws:s3:::unmanaged-alb-logs-989043056009/tf-blue-ridge-api-preprod-alb/AWSLogs/989043056009/*",
+      "Principal": {
+        "AWS": [
+          "127311923021"
+        ]
+      }
+    }
+  ]
+}

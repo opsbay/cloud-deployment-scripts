@@ -1,0 +1,74 @@
+version: 0.0
+os: linux
+files:
+ - source: /bin
+   destination: /opt/{{ APP_NAME }}/bin
+ - source: /etc
+   destination: /opt/{{ APP_NAME }}/etc
+ - source: /httpd.conf
+   destination: /opt/{{ APP_NAME }}/httpd.conf
+ - source: /package
+   destination: /var/www/applications/succeed
+hooks:
+  ApplicationStop:
+    - location: bin/stop-server.sh
+      timeout: 300
+      runas: root
+    - location: bin/remove_logs_in_splunk.sh
+      timeout: 120
+      runas: splunk
+    - location: bin/clean-directory.sh
+      timeout: 60
+      runas: root
+  BeforeInstall:
+    - location: bin/aws_asg_codedeploy_heartbeat.sh
+      timeout: 60
+      runas: root
+    - location: bin/prepare-directory.sh
+      timeout: 30
+      runas: root
+  AfterInstall:
+    - location: bin/aws_asg_codedeploy_heartbeat.sh
+      timeout: 60
+      runas: root
+    - location: bin/get-config-files.sh
+      timeout: 300
+      runas: root
+    - location: bin/cache-clear.sh
+      timeout: 300
+      runas: root
+    - location: bin/cache-warm.sh
+      timeout: 300
+      runas: root
+    - location: bin/assets-dump.sh
+      timeout: 300
+      runas: root
+    - location: bin/file-attributes.sh
+      timeout: 300
+      runas: root
+    - location: bin/prepare-logging.sh
+      timeout: 120
+      runas: root
+    - location: bin/implement_new_relic_apm.sh
+      timeout: 300
+      runas: root
+    - location: bin/add_logs_to_splunk.sh
+      timeout: 300
+      runas: splunk
+    - location: bin/enable-at-for-apache-user.sh
+      timeout: 60
+      runas: root
+  ApplicationStart: 
+    - location: bin/aws_asg_codedeploy_heartbeat.sh
+      timeout: 60
+      runas: root
+    - location: bin/start-server.sh
+      timeout: 300
+      runas: root
+  ValidateService: 
+    - location: bin/aws_asg_codedeploy_heartbeat.sh
+      timeout: 60
+      runas: root
+    - location: bin/health-check.sh
+      timeout: 300
+      runas: root

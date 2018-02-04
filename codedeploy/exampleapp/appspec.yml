@@ -1,0 +1,29 @@
+version: 0.0
+os: linux
+files:
+ - source: src/webapp
+   destination: /opt/exampleapp/
+hooks:
+   BeforeInstall:
+     - location: bin/before-install.sh
+       timeout: 300
+       runas: root
+   AfterInstall:
+     - location: bin/after-install.sh
+       timeout: 300
+       runas: root
+   ApplicationStart:
+     - location: bin/start-server.sh
+       timeout: 300
+       runas: root
+   ApplicationStop:
+     - location: bin/aws_alb_deregister.sh
+       timeout: 60
+       runas: root
+     - location: /bin/stop-server.sh
+       timeout: 300
+       runas: root
+   ValidateService:
+     - location: bin/aws_alb_register.sh
+       timeout: 60
+       runas: root

@@ -1,0 +1,8 @@
+/var/log/splunk-acl
+{
+    missingok
+    create 0600 root root
+    postrotate
+        /usr/bin/setfacl -m  g:splunk:rx -R /var/log
+    endscript
+}

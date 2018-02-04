@@ -1,0 +1,27 @@
+server:
+  port: 8050
+
+management:
+  port: 8052
+
+mongoConfig:
+    serverAddresses:
+     #- tf-mongo-qa-00.local.naviance.com:27017
+     #- tf-mongo-qa-01.local.naviance.com:27017
+     #- tf-mongo-qa-02.local.naviance.com:27017
+     - 10.24.168.152:27017
+    username: edocsuser
+    password: Ed0c5App
+
+spring:
+  profiles:
+    active: upload,submission,mtm,collectionCleaner
+security:
+   basic:
+     # set to true when enabling oauth
+     enabled: true
+   sessions: stateless
+oauth2:
+   clientId: qa.edocsinstitution
+   clientSecret: 9EmuAc0V9z2ZZwWzHysOsJvKdiPFH8iK
+   checkTokenEndpointURL: https://iamoauth-aws-qa.naviance.com/oauth/check_token

@@ -1,0 +1,17 @@
+[Unit]
+Description=HTTP nodejs
+After=network.target
+wants=http
+
+[Service]
+ExecStart=/usr/bin/node /opt/nodejs/www/sample.js
+Restart=always
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=nodejs
+User=nobody
+Group=nobody
+Environment=NODE_ENV=production
+
+[Install]
+WantedBy=multi-user.target

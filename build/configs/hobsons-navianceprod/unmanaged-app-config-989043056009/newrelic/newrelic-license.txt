@@ -1,0 +1,4 @@
+# Configuration file which has all information for newrelic
+
+NEW_RELIC_ACCOUNT_ID=1748528
+NEW_RELIC_KEY=f89bf60f567ecc5173ed8254abf08d02d393e5f8

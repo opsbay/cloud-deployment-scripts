@@ -1,0 +1,10 @@
+{
+    "debug": false,
+    "db.options": {
+        "driver"   : "pdo_mysql",
+        "host"     : "{{ cluster_address.value }}",
+        "user"     : "{{ naviance.user }}",
+        "password" : "{{ naviance.password }}",
+        "dbname"   : "{{ naviance.database }}"
+    }
+}

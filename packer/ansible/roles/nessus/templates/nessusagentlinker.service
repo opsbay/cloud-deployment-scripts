@@ -1,0 +1,17 @@
+[Unit]
+Description=Nessus Agent Linker service
+Documentation=http://static.tenable.com/documentation/nessus_6.4_command_line_reference.pdf
+Wants=network.target
+Wants=network-online.target
+Wants=nessus.service
+After=network.target
+After=network-online.target
+After=nessus.service
+
+[Service]
+Type=oneshot
+ExecStart=/opt/nessus_agent/nessus_linker.sh
+RemainAfterExit=no
+
+[Install]
+WantedBy=multi-user.target

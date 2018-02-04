@@ -1,0 +1,70 @@
+---
+# For data generation, slave config should match master
+database:
+  replication:
+    master:
+      host: {{ cluster_address.value }}
+      port: 3306
+      username: {{ naviance.user }}
+      password: {{ naviance.password }}
+      database: {{ naviance.database }}
+    slaves: 
+      - host: {{ cluster_address.value }}
+        port: 3306
+        username: {{ naviance.user }}
+        password: {{ naviance.password }}
+        database: {{ naviance.database }}
+
+framework:
+  showBootstrapTime: true
+  bootstrapTimeout: 10
+
+logging:
+  console:
+    level: debug
+    handleExceptions: true
+    json: false
+    colorize: true
+  file:
+    level: error
+    filename: naviance-blue-ridge-api.log
+    directory: /var/log/naviance-blue-ridge-api
+    handleExceptions: true
+    json: true
+    maxsize: 5242880
+    maxFiles: 100
+    colorize: true
+  queries: true
+
+server:
+  env: dev
+  port: 8080
+  session:
+    name: mr-family-connection-data
+    secret: "fSvOFPfqck4yrgZk9zT1XdfPBMkEIeFhyndK3EPc2En+LDhEuOsJ/A=="
+    proxy: false
+    resave: false
+    saveUninitialized: false
+  jwt:
+     privateKey: "wFowZMByLx9oO9bpnqW3jULwBsuf1aoX/NMOmanQ6Sh4s4M36nLqFw=="
+     options:
+     expiresIn: 24h
+
+swagger:
+  swagger: 2.0
+  host: localhost:8080
+  basePath: /
+
+api:
+  version: v1
+
+integration:
+  tests:
+    apiHost: http://localhost
+
+externalResources:
+  roadTripNation:
+    apiUrl: https://api.roadtripnation.com
+    version: v1
+    token: 62a5e197f94e511f
+

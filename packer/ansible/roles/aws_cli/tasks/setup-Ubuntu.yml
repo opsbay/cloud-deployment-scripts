@@ -1,0 +1,3 @@
+---
+- name: AWS CLI | Install python-pip
+  package: name=python-pip state=present

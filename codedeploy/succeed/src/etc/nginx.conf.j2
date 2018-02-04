@@ -1,0 +1,174 @@
+##
+# You should look at the following URL's in order to grasp a solid understanding
+# of Nginx configuration files in order to fully unleash the power of Nginx.
+# http://wiki.nginx.org/Pitfalls
+# http://wiki.nginx.org/QuickStart
+# http://wiki.nginx.org/Configuration
+#
+# Generally, you will want to move this file somewhere, and start with a clean
+# file but keep this around for reference. Or just disable in sites-enabled.
+#
+# Please see /usr/share/doc/nginx-doc/examples/ for more detailed examples.
+##
+
+include hobsons-log-format.conf;
+
+# HTTP on port 80
+server {
+    listen 80;
+    index signin.php index.php index.html;
+    server_name {{ serverName }};
+    root {{ documentRoot }}/legacy/wk12;   
+
+    # ELB stores the protocol used between the client
+    # and the load balancer in the X-Forwarded-Proto request header.
+    # Check for 'https' and redirect if not
+    if ($http_x_forwarded_proto = 'http') {
+        rewrite ^ https://$host$request_uri? permanent;
+    }
+    
+    location /course-planner/ {
+        fastcgi_param PHP_VALUE 'newrelic.framework="zend"';
+        try_files $uri $uri/ @course-planner;
+    }
+
+    location @course-planner {
+        rewrite ^/course-planner/(.*)$ /course-planner/index.php/$1 last;
+    }
+
+    location /district/course-planner/ {
+        fastcgi_param PHP_VALUE 'newrelic.framework="zend"';
+        try_files $uri $uri/ @district-course-planner;
+    }
+
+    location @district-course-planner {
+        rewrite ^/district/course-planner/(.*)$ /district/course-planner/index.php/$1 last;
+    }
+
+    location /district/data-import/ {
+        fastcgi_param PHP_VALUE 'newrelic.framework="zend"';
+        try_files $uri $uri/ @district-data-import;
+    }
+
+    location @district-data-import {
+        rewrite ^/district/data-import/(.*)$ /district/data-import/index.php/$1 last;
+    }
+
+    location /reporting-framework/ {
+        fastcgi_param PHP_VALUE 'newrelic.framework="zend"';
+        try_files $uri $uri/ @reporting-framework;
+    }
+
+    location @reporting-framework {
+        rewrite ^/reporting-framework/(.*)$ /reporting-framework/index.php/$1 last;
+    }
+
+    location /district/reporting-framework/ {
+        fastcgi_param PHP_VALUE 'newrelic.framework="zend"';
+        try_files $uri $uri/ @district-reporting-framework;
+    }
+
+    location @district-reporting-framework {
+        rewrite ^/district/reporting-framework/(.*)$ /district/reporting-framework/index.php/$1 last;
+    }
+
+    location /career-cluster/ {
+        fastcgi_param PHP_VALUE 'newrelic.framework="zend"';
+        try_files $uri $uri/ @career-cluster;
+    }
+
+    location @career-cluster {
+        rewrite ^/career-cluster/(.*)$ /career-cluster/index.php/$1 last;
+    }
+
+    location /success-planner/ {
+        fastcgi_param PHP_VALUE 'newrelic.framework="zend"';
+        try_files $uri $uri/ @success-planner;
+    }
+
+    location @success-planner {
+        rewrite ^/success-planner/(.*)$ /success-planner/index.php/$1 last;
+    }
+
+    location /district/sp/ {
+        fastcgi_param PHP_VALUE 'newrelic.framework="zend"';
+        try_files $uri $uri/ @district-sp;
+    }
+
+    location @district-sp {
+        rewrite ^/district/sp/(.*)$ /district/sp/index.php/$1 last;
+    }
+
+    location /auth/ {
+        fastcgi_param PHP_VALUE 'newrelic.framework="silex"';
+        try_files $uri $uri/ @auth;
+    }
+
+    location @auth {
+        rewrite ^/auth/(.*)$ /auth/index.php/$1 last;
+    }
+
+    location /family-connection/ {
+        fastcgi_param PHP_VALUE 'newrelic.framework="zend"';
+        try_files $uri $uri/ @family-connection;
+    }
+
+    location @family-connection {
+        rewrite ^/family-connection/(.*)$ /family-connection/index.php/$1 last;
+    }
+
+    location /v2/ {
+        set $v2Root {{ documentRoot }}/web;
+        alias $v2Root/;
+        index app.php;
+        try_files $uri $uri/ @v2;
+
+        location ~ /(app|app_dev|app_docker)\.php(/|$) {
+            fastcgi_split_path_info ^(.+?\.php)(/.*)$;
+            set $path_info $fastcgi_path_info;
+            fastcgi_param PATH_INFO $path_info;
+            fastcgi_index app.php;
+            # Make sure the script exists.
+            #try_files $document_root/$subfolder/$fastcgi_script_name =404;
+            fastcgi_pass unix:{{ phpFpmSockFile }};
+            fastcgi_param SCRIPT_FILENAME $v2Root/app.php;
+            include fastcgi_params;
+        }
+    }
+
+    location @v2 {
+        rewrite ^/v2/(.*)$ /v2/app.php/$1 last;
+    }
+
+    location ~ \.php {
+        fastcgi_split_path_info ^(.+?\.php)(/.*)$;
+
+        # Work around annoying nginx "feature" (https://trac.nginx.org/nginx/ticket/321)
+        set $path_info $fastcgi_path_info;
+        fastcgi_param PATH_INFO $path_info;
+        fastcgi_param PHP_VALUE  "include_path=.:{{ documentRoot }}/legacy/wk12/includes";
+
+        # Make sure the script exists.
+        try_files $fastcgi_script_name =404;
+
+        fastcgi_pass unix:{{ phpFpmSockFile }};
+        fastcgi_index index.php;
+        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+        
+        proxy_buffer_size 128k;
+        proxy_buffers 4 256k;
+        proxy_busy_buffers_size 256k;
+        
+        include fastcgi_params;
+    }
+
+    location @missing {
+        rewrite .* /missing.php;
+    }
+
+    error_page 403 = @missing;
+    error_page 404 = @missing;
+
+    error_log /var/log/nginx/succeed.local.error.log;
+    access_log /var/log/nginx/succeed.local.access.log hobsons;
+}

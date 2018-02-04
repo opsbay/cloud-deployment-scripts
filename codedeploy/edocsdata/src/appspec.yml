@@ -1,0 +1,67 @@
+version: 0.0
+os: linux
+files:
+  - source: artifacts
+    destination: /opt/{{ APP_NAME }}
+    owner: root
+    group: {{ APP_NAME }}
+    mode: 640
+hooks:
+  ApplicationStop:
+    - location: scripts/aws_alb_deregister.sh
+      timeout: 420
+      runas: root
+    - location: scripts/stop_service.sh
+      timeout: 60
+      runas: root
+    - location: scripts/remove_logs_in_splunk.sh
+      timeout: 120
+      runas: splunk
+  BeforeInstall:
+    - location: scripts/aws_asg_codedeploy_heartbeat.sh
+      timeout: 60
+      runas: root
+    - location: scripts/prepare.sh
+      timeout: 120
+      runas: root
+  AfterInstall:
+    - location: scripts/aws_asg_codedeploy_heartbeat.sh
+      timeout: 60
+      runas: root
+    - location: scripts/download_config.sh
+      timeout: 60
+      runas: root
+    - location: scripts/rsyslog-conf.sh
+      timeout: 60
+      runas: root
+    - location: scripts/install.sh
+      timeout: 60
+      runas: root
+    - location: scripts/implement_new_relic_apm.sh
+      timeout: 60
+      runas: root
+    - location: scripts/configure-tmp-dirs-centos.sh
+      timeout: 300
+      runas: root
+  ApplicationStart:
+    - location: scripts/aws_asg_codedeploy_heartbeat.sh
+      timeout: 60
+      runas: root
+    - location: scripts/start_application.sh
+      timeout: 300
+      runas: root
+    - location: scripts/add_logs_to_splunk.sh
+      timeout: 120
+      runas: splunk
+  ValidateService:
+    - location: scripts/aws_asg_codedeploy_heartbeat.sh
+      timeout: 60
+      runas: root
+    - location: scripts/validate.sh
+      timeout: 300
+      runas: {{ APP_NAME }}
+    - location: scripts/aws_alb_register.sh
+      timeout: 240
+      runas: root
+
+

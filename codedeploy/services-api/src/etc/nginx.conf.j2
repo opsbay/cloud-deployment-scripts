@@ -1,0 +1,197 @@
+##
+# You should look at the following URL's in order to grasp a solid understanding
+# of Nginx configuration files in order to fully unleash the power of Nginx.
+# http://wiki.nginx.org/Pitfalls
+# http://wiki.nginx.org/QuickStart
+# http://wiki.nginx.org/Configuration
+#
+# Generally, you will want to move this file somewhere, and start with a clean
+# file but keep this around for reference. Or just disable in sites-enabled.
+#
+# Please see /usr/share/doc/nginx-doc/examples/ for more detailed examples.
+##
+
+include hobsons-log-format.conf;
+
+# HTTP on port 80
+server {
+    listen 80;
+    server_name {{ serverName }};
+    root /httpd/k12/wk12;
+    index index.php index.html;
+
+    #########################################################################
+    # Project:        legacy-nav-api-v1
+    # Located in:     /httpd/navserv-v1
+    # Accessible via: /api/rest/v1
+    #########################################################################
+    location /api/rest/v1 {
+        set $api_rest_v1_root /httpd/navserv-v1/public;
+        alias $api_rest_v1_root;
+        try_files $uri $uri/ @api-rest-v1;
+
+        location ~ \.php {
+            fastcgi_split_path_info ^(.+?\.php)(/.*)$;
+            set $path_info $fastcgi_path_info;
+            fastcgi_param PATH_INFO $path_info;
+            fastcgi_pass unix:/var/run/php-fpm/php-fpm.sock;
+            fastcgi_index index.php;
+            fastcgi_param SCRIPT_FILENAME $api_rest_v1_root/index.php;
+            include fastcgi_params;
+        }
+    }
+
+    location @api-rest-v1 {
+        rewrite ^/api/rest/v1/(.*)$ /api/rest/v1/index.php/$1 last;
+    }
+
+    #########################################################################
+    # Project:        legacy-naviance-student-mobile-api
+    # Located in:     /httpd/mob-api/public
+    # Accessible via: /mob-api
+    #########################################################################
+    location /mob-api {
+        set $mob_api_root /httpd/mob-api/public;
+        alias $mob_api_root;
+        try_files $uri $uri/ @mob-api;
+
+        location ~ \.php {
+            fastcgi_split_path_info ^(.+?\.php)(/.*)$;
+            set $path_info $fastcgi_path_info;
+            fastcgi_param PATH_INFO $path_info;
+            fastcgi_pass unix:/var/run/php-fpm/php-fpm.sock;
+            fastcgi_index index.php;
+            fastcgi_param SCRIPT_FILENAME $mob_api_root/index.php;
+            include fastcgi_params;
+        }
+    }
+
+    location @mob-api {
+        rewrite ^/mob-api/(.*)$ /mob-api/index.php/$1 last;
+    }
+
+    #########################################################################
+    # Project:        legacy-nav-api-v2
+    # Located in:     /httpd/navserv-beta-v2/public
+    # Accessible via: /beta/v2
+    #########################################################################
+    location /beta/v2 {
+        set $beta_v2_root /httpd/navserv-beta-v2/public;
+        alias $beta_v2_root;
+        try_files $uri $uri/ @beta-v2;
+
+        location ~ \.php {
+            fastcgi_split_path_info ^(.+?\.php)(/.*)$;
+            set $path_info $fastcgi_path_info;
+            fastcgi_param PATH_INFO $path_info;
+            fastcgi_pass unix:/var/run/php-fpm/php-fpm.sock;
+            fastcgi_index index.php;
+            fastcgi_param SCRIPT_FILENAME $beta_v2_root/index.php;
+            include fastcgi_params;
+        }
+    }
+
+    location @beta-v2 {
+        rewrite ^/beta/v2/(.*)$ /beta/v2/index.php/$1 last;
+    }
+
+    #########################################################################
+    # Project:        assessment-api-prototype
+    # Located in:     /httpd/navserv-beta/web
+    # Accessible via: /assessments/beta
+    #########################################################################
+    location /assessments/beta {
+        set $navserv_beta_v2_root /httpd/navserv-beta/web;
+        alias $navserv_beta_v2_root;
+        try_files $uri $uri/ @navserv-beta-v2;
+
+        location ~ \.php {
+            fastcgi_split_path_info ^(.+?\.php)(/.*)$;
+            set $path_info $fastcgi_path_info;
+            fastcgi_param PATH_INFO $path_info;
+            fastcgi_pass unix:/var/run/php-fpm/php-fpm.sock;
+            fastcgi_index index.php;
+            fastcgi_param SCRIPT_FILENAME $navserv_beta_v2_root/index.php;
+            include fastcgi_params;
+        }
+    }
+
+    location @navserv-beta-v2 {
+        rewrite ^/assessments/beta/(.*)$ /assessments/beta/index.php/$1 last;
+    }
+
+    #########################################################################
+    # Project:        naviance-auth-bridge
+    # Located in:     /httpd/naviance-auth-bridge/live/web
+    # Accessible via: /auth/v1
+    #########################################################################
+    location /auth/v1 {
+        set $auth_v1_root /httpd/naviance-auth-bridge/live/web;
+        alias $auth_v1_root;
+        try_files $uri $uri/ @auth-v1;
+
+        location ~ \.php {
+            fastcgi_split_path_info ^(.+?\.php)(/.*)$;
+            set $path_info $fastcgi_path_info;
+            fastcgi_param PATH_INFO $path_info;
+            fastcgi_pass unix:/var/run/php-fpm/php-fpm.sock;
+            fastcgi_index app.php;
+            fastcgi_param SCRIPT_FILENAME $auth_v1_root/app.php;
+            include fastcgi_params;
+        }
+    }
+
+    location @auth-v1 {
+        rewrite ^/auth/v1/(.*)$ /auth/v1/app.php/$1 last;
+    }
+
+    #########################################################################
+    # Project:        naviance-student-college-bridge
+    # Located in:     /httpd/naviance-student-college-bridge/web
+    # Accessible via: /student-college/v1
+    #########################################################################
+    location /student-college/v1 {
+        set $student_college_v1_root /httpd/naviance-student-college-bridge/web;
+        alias $student_college_v1_root;
+        try_files $uri $uri/ @student-college-v1;
+
+        location ~ \.php {
+            fastcgi_split_path_info ^(.+?\.php)(/.*)$;
+            set $path_info $fastcgi_path_info;
+            fastcgi_param PATH_INFO $path_info;
+            fastcgi_pass unix:/var/run/php-fpm/php-fpm.sock;
+            fastcgi_index app.php;
+            fastcgi_param SCRIPT_FILENAME $student_college_v1_root/app.php;
+            include fastcgi_params;
+        }
+    }
+
+    location @student-college-v1 {
+        rewrite ^/student-college/v1/(.*)$ /student-college/v1/app.php/$1 last;
+    }
+
+    location ~ \.php {
+        fastcgi_split_path_info ^(.+?\.php)(/.*)$;
+
+        # Work around annoying nginx "feature" (https://trac.nginx.org/nginx/ticket/321)
+        set $path_info $fastcgi_path_info;
+        fastcgi_param PATH_INFO $path_info;
+        fastcgi_param PHP_VALUE  "include_path=.:/httpd/k12/wk12/includes";
+
+        # Make sure the script exists.
+        try_files $fastcgi_script_name =404;
+
+        fastcgi_pass unix:/var/run/php-fpm/php-fpm.sock;
+        fastcgi_index index.php;
+        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+
+        proxy_buffer_size 128k;
+        proxy_buffers 4 256k;
+        proxy_busy_buffers_size 256k;
+
+        include fastcgi_params;
+    }
+
+    error_log /var/log/nginx/servicesapi.local.error.log;
+    access_log /var/log/nginx/servicesapi.local.access.log hobsons;
+}

@@ -1,0 +1,19 @@
+---
+- name: restart php-fpm
+  service: name=php5-fpm state=restarted
+  when: ansible_distribution == 'Debian'
+
+- name: restart php-fpm
+  service: name=php5.6-fpm state=restarted
+  when: ansible_distribution == 'Ubuntu'
+
+- name: restart php-fpm
+  service: name=php-fpm state=restarted
+  when: ansible_os_family == 'CentOS' and ansible_lsb.major_release|int == 6
+
+- name: restart php-fpm
+  systemd:
+    state: restarted
+    daemon_reload: yes
+    name: php-fpm
+  when: ansible_os_family == 'CentOS' and ansible_lsb.major_release|int == 7

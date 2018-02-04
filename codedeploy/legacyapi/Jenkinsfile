@@ -1,0 +1,143 @@
+#!/usr/bin/env groovy
+def APP_NAME = 'legacyapi'
+def APP_REPO = 'naviance-legacy-core-api'
+def APP_REPO_URL = "https://github.com/naviance/${APP_REPO}"
+def APP_CODEDEPLOY_DIR = "codedeploy/${APP_NAME}"
+def APP_ARTIFACTORY_REFERENCE = [
+    "Use artifactory to get build product instead of building from scratch - sepcify here",
+    "For security reasons please NOT use http URL. Look below as an example of artifactory reference",
+    "https://artifactory01.hobsonshighered.com/artifactory/naviance-qa/com/naviance/legacy/legacy-core-service/0.9.6.192/legacy-core-service-0.9.6.192.jar",
+].join('\n')
+def APP_DESCRIPTION = [
+    "Git Branch, Tag, or Commit reference for ${APP_NAME}",
+    "Use master to get what is in production",
+    "Use develop to get the current development branch (Git Flow style project)",
+    "Use a release branch to build a release candidate",
+].join('\n')
+def APP_DEFAULT_BRANCH = 'develop'
+
+// Credential id name for AWS S3 access to obtain Jenkins config files.
+def AWS_DEV_CREDENTIAL_ID = 'unmanaged-jenkins-terraform'
+def default_timeout_minutes = 10
+
+/*
+ * Credential id name for Artifactory dev access.
+ */
+def ARTIFACTORY_DEV_CREDENTIAL_ID = 'artifactory-naviance-dev'
+
+def wrapStep = { steps ->
+    withCredentials([
+        usernamePassword(credentialsId: AWS_DEV_CREDENTIAL_ID,
+                          passwordVariable: 'AWS_SECRET_ACCESS_KEY',
+                          usernameVariable: 'AWS_ACCESS_KEY_ID'),
+        usernamePassword(credentialsId: ARTIFACTORY_DEV_CREDENTIAL_ID,
+                          passwordVariable: 'ARTIFACTORY_DEV_PASSWORD',
+                          usernameVariable: 'ARTIFACTORY_DEV_USERNAME'),
+    ]) {
+        wrap([$class: 'AnsiColorBuildWrapper', 'colorMapName': 'XTerm', 'defaultFg': 1, 'defaultBg': 2]) {
+              // This is the current syntax for invoking a build wrapper, naming the class.
+              wrap([$class: 'TimestamperBuildWrapper']) {
+                  steps()
+              }
+        }
+    }
+}
+
+properties([
+    parameters([
+        string(name: 'artifactory_reference',
+                description: APP_ARTIFACTORY_REFERENCE,
+                defaultValue: ''),
+        string(name: 'git_branch_tag_or_commit',
+               description: APP_DESCRIPTION,
+               defaultValue: APP_DEFAULT_BRANCH),
+        string(name: 'deploy_git_branch_tag_or_commit',
+               description: 'Git Branch, Tag, or Commit reference for Cloud Deployment Scripts',
+               defaultValue: 'master')
+    ])
+])
+
+stage("Validate") {
+    def message = ""
+    def is_artifactory_https = (params.artifactory_reference =~ /^https:.*$/)
+        if (params.artifactory_reference && ! is_artifactory_https.matches()) {
+            message = "You may only use the https protocol for artifactory references for security reasons. "
+    }
+    if (message != "") {
+        echo message
+        currentBuild.result = 'UNSTABLE'
+        currentBuild.description = message
+    }
+}
+if (currentBuild.result != 'UNSTABLE') {
+    stage('Checkout') {
+        parallel cloud: {
+            node {
+                timeout(time:default_timeout_minutes, unit:'MINUTES') {
+                    dir('cloud-deployment-scripts') {
+                        checkout([
+                            $class: 'GitSCM',
+                            branches: [[name: '${deploy_git_branch_tag_or_commit}']],
+                            doGenerateSubmoduleConfigurations: false,
+                            extensions: [],
+                            submoduleCfg: [],
+                            userRemoteConfigs: [[
+                                credentialsId: 'github-api-hobsonsbuildserver-v2',
+                                url: 'https://github.com/naviance/cloud-deployment-scripts'
+                            ]]
+                        ])
+                        // Thanks Stack Overflow https://stackoverflow.com/a/34321368/424301
+                        sh 'sudo git clean -fdx && cp env.sh.sample env.sh'
+                    }
+                    stash includes: 'cloud-deployment-scripts/**', name: 'src-cloud'
+                }
+            }
+        }, app: {
+            node {
+                timeout(time:default_timeout_minutes, unit:'MINUTES') {
+                    dir(APP_REPO) {
+                        sh 'sudo chown -Rh centos:centos .'
+                        checkout([
+                            $class: 'GitSCM',
+                            branches: [[name: '${git_branch_tag_or_commit}']],
+                            extensions: [[$class: 'CloneOption', noTags: false, reference: '', shallow: true]],
+                            doGenerateSubmoduleConfigurations: false,
+                            submoduleCfg: [],
+                            userRemoteConfigs: [[
+                                credentialsId: 'github-api-hobsonsbuildserver-v2',
+                                url: APP_REPO_URL
+                            ]]
+                        ])
+                        sh 'sudo git clean -fdx && sudo rm -rf build'
+                        def author = sh (
+                            script: 'git --no-pager show -s --format=%ae',
+                            returnStdout: true
+                        ).trim()
+                        def revision = sh (
+                            script: 'git describe --always --tags --long',
+                            returnStdout: true
+                        ).trim()
+                        currentBuild.displayName = "#${BUILD_NUMBER}: ${git_branch_tag_or_commit}"
+                        currentBuild.description = "Revision ${revision} by ${author}"
+                        sh 'git describe --always --tags > TAG'
+                    }
+                    stash includes: "${APP_REPO}/**", name: 'src-app'
+                }
+            }
+        }
+    }
+    stage('Run make build'){
+        node {
+            if (fileExists(APP_REPO)) {
+                sh "sudo rm -rf ${APP_REPO}"
+            }
+            unstash 'src-cloud'
+            unstash 'src-app'
+            wrapStep({
+              dir("cloud-deployment-scripts/${APP_CODEDEPLOY_DIR}") {
+                sh "make clean meta all ARTIFACTORY_REFERENCE=${artifactory_reference} UPSTREAM_BRANCH=${git_branch_tag_or_commit}"
+              }
+            })
+        }
+    }
+}

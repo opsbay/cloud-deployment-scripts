@@ -1,0 +1,11 @@
+---
+
+# Installation of Splunk configuration agent in Centos 6
+
+  - name: Generate service file for Splunk configuration agent (init.d)
+    tags: [ install, splunkinstall ]
+    template:        
+      src: splunk_service.sh
+      dest: /etc/init.d/splunkagentlinker
+      owner: root
+      mode: 0755
