@@ -1,7 +1,7 @@
 #!/usr/bin/env groovy
 def APP_NAME = 'succeed'
 def APP_REPO = 'succeed'
-def APP_REPO_URL = "https://github.com/naviance/${APP_REPO}"
+def APP_REPO_URL = "https://github.com/DanielQuiroga/${APP_REPO}"
 def APP_CODEDEPLOY_DIR = "codedeploy/${APP_NAME}"
 def APP_DESCRIPTION = [ 
     "Git Branch, Tag, or Commit reference for ${APP_NAME}",
@@ -59,7 +59,7 @@ stage('Checkout') {
                         submoduleCfg: [],
                         userRemoteConfigs: [[
                             credentialsId: 'github-api-hobsonsbuildserver-v2',
-                            url: 'https://github.com/naviance/cloud-deployment-scripts'
+                            url: 'https://github.com/DanielQuiroga/cloud-deployment-scripts'
                         ]]
                     ])
                     // Thanks Stack Overflow https://stackoverflow.com/a/34321368/424301
